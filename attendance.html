@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aventa - Attendance Calendar</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Simple Calendar CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css">
+</head>
+<body class="calendar-body">
+  <header class="dashboard-header">
+    <h1>My Attendance</h1>
+    <nav>
+      <a href="dashboard.html" class="btn-secondary">Dashboard</a>
+      <button id="logoutBtn" class="btn-secondary">Logout</button>
+    </nav>
+  </header>
+
+  <main class="calendar-main">
+    <div id="calendar"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  <script type="module" src="js/attendance.js"></script>
+</body>
+</html>
