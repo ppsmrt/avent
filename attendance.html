@@ -8,67 +8,65 @@
       background: linear-gradient(135deg, #0f172a, #1e293b);
       color: #f8fafc;
       text-align: center;
-      padding: 40px;
       min-height: 100vh;
+      margin: 0;
       display: flex;
-      flex-direction: column;
       justify-content: center;
-    }
-
-    h1 {
-      font-size: 3rem;
-      background: linear-gradient(90deg, #00f5d4, #00bbf9);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: bold;
-      margin-bottom: 10px;
-      letter-spacing: 2px;
-    }
-
-    p {
-      color: #94a3b8;
-      margin-bottom: 30px;
-      font-size: 1.1rem;
-    }
-
-    button {
-      padding: 14px 30px;
-      font-size: 18px;
-      margin: 12px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      color: white;
-      background: linear-gradient(90deg, #00f5d4, #00bbf9);
-      box-shadow: 0 4px 20px rgba(0, 191, 255, 0.4);
-      transition: all 0.3s ease;
-    }
-
-    button:hover:enabled {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(0, 191, 255, 0.6);
-    }
-
-    button:disabled {
-      background: #475569;
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-
-    #status {
-      margin-top: 25px;
-      font-weight: bold;
-      font-size: 1.2rem;
-      color: #f8fafc;
+      align-items: center;
     }
 
     .glow-box {
       background: rgba(255, 255, 255, 0.05);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0, 191, 255, 0.1);
-      max-width: 400px;
-      margin: auto;
+      padding: 20px 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 191, 255, 0.15);
+      width: 280px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #00f5d4, #00bbf9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin: 8px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(90deg, #00f5d4, #00bbf9);
+      box-shadow: 0 3px 10px rgba(0, 191, 255, 0.4);
+      transition: all 0.25s ease;
+      width: 100px;
+    }
+
+    button:hover:enabled {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 191, 255, 0.6);
+    }
+
+    button:disabled {
+      background: #64748b;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 0.95rem;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -83,75 +81,52 @@
     <div id="status">📍 Checking location...</div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  <script>
+    // Office location coordinates
+    const officeLat = 12.9716;  // example latitude
+    const officeLng = 77.5946;  // example longitude
+    const allowedRadius = 100;  // meters
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyATZi32dliIzjOCIXcv1MbxOXhkNjogA6Q",
-      authDomain: "aventattendance.firebaseapp.com",
-      databaseURL: "https://aventattendance-default-rtdb.firebaseio.com/",
-      projectId: "aventattendance",
-      storageBucket: "aventattendance.appspot.com",
-      messagingSenderId: "993022737242",
-      appId: "1:993022737242:web:92c380107f73eb70ac1163"
-    };
+    const punchInBtn = document.getElementById("punchInBtn");
+    const punchOutBtn = document.getElementById("punchOutBtn");
+    const statusEl = document.getElementById("status");
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; // metres
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2-lat1) * Math.PI/180;
+      const Δλ = (lon2-lon1) * Math.PI/180;
 
-    const officeLat = 12.969555;
-    const officeLng = 80.243833;
-    const allowedRadius = 100; // meters
-
-    function haversineDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3;
-      const toRad = deg => deg * Math.PI / 180;
-      const φ1 = toRad(lat1), φ2 = toRad(lat2);
-      const Δφ = toRad(lat2 - lat1);
-      const Δλ = toRad(lon2 - lon1);
-      const a = Math.sin(Δφ/2)**2 +
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
                 Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2)**2;
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
       return R * c;
     }
 
     function checkLocation() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(position => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          const distance = haversineDistance(lat, lng, officeLat, officeLng);
+        navigator.geolocation.getCurrentPosition(pos => {
+          const dist = getDistance(pos.coords.latitude, pos.coords.longitude, officeLat, officeLng);
 
-          if (distance <= allowedRadius) {
-            document.getElementById('status').innerText = "✅ You are inside the office area.";
-            document.getElementById('punchInBtn').disabled = false;
-            document.getElementById('punchOutBtn').disabled = false;
+          if (dist <= allowedRadius) {
+            statusEl.textContent = "✅ Inside office area";
+            punchInBtn.disabled = false;
+            punchOutBtn.disabled = false;
           } else {
-            document.getElementById('status').innerText = "❌ You are outside the office area.";
+            statusEl.textContent = "❌ Outside office area";
+            punchInBtn.disabled = true;
+            punchOutBtn.disabled = true;
           }
-        }, error => {
-          document.getElementById('status').innerText = "⚠ Unable to retrieve location.";
+        }, err => {
+          statusEl.textContent = "⚠️ Location access denied";
         });
       } else {
-        document.getElementById('status').innerText = "⚠ Geolocation is not supported.";
+        statusEl.textContent = "⚠️ Geolocation not supported";
       }
     }
-
-    function recordPunch(type) {
-      const timestamp = new Date().toISOString();
-      push(ref(db, "attendance"), { type, timestamp })
-        .then(() => {
-          document.getElementById('status').innerText = `✔ ${type} recorded at ${new Date().toLocaleTimeString()}`;
-        })
-        .catch(() => {
-          document.getElementById('status').innerText = "⚠ Failed to record.";
-        });
-    }
-
-    document.getElementById('punchInBtn').addEventListener('click', () => recordPunch("Punch In"));
-    document.getElementById('punchOutBtn').addEventListener('click', () => recordPunch("Punch Out"));
 
     checkLocation();
   </script>
