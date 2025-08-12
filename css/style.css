@@ -1,94 +1,119 @@
-.form-main {
-  max-width: 600px;
-  margin: 20px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-.form-box {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-textarea, input {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.leave-list {
-  max-width: 800px;
-  margin: 20px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-body {
+/* ====== General Reset ====== */
+* {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f4f6f8;
-  color: #333;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-header.dashboard-header {
-  background: #1e3a8a;
-  color: white;
-  padding: 15px 20px;
+body.login-body {
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #f8fafc;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  min-height: 100vh;
 }
 
-header.dashboard-header h1 {
-  margin: 0;
-}
-
-header.dashboard-header nav {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-primary {
-  background: #2563eb;
-  border: none;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.btn-secondary {
-  background: #64748b;
-  border: none;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.calendar-main {
-  max-width: 1000px;
-  margin: 20px auto;
-  background: white;
+/* ====== Container ====== */
+.login-container {
+  background: rgba(255, 255, 255, 0.04);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.15);
+  width: 90%;
+  max-width: 360px;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.8s ease-out;
 }
 
-.export-controls {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-bottom: 15px;
+/* ====== Logo Section ====== */
+.login-logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-logo img {
+  width: 60px;
+  margin-bottom: 6px;
+}
+
+.login-logo h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  background: linear-gradient(90deg, #00f5d4, #00bbf9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ====== Form ====== */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.form-group input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 6px rgba(0, 191, 255, 0.5);
+}
+
+/* ====== Button ====== */
+.btn-primary {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #00f5d4, #00bbf9);
+  color: #0f172a;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 191, 255, 0.4);
+  transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 191, 255, 0.6);
+}
+
+/* ====== Links ====== */
+a {
+  color: #00bbf9;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ====== Animation ====== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
