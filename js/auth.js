@@ -1,42 +1,41 @@
-import { auth, db } from "./firebaseConfig.js";
+// js/auth.js
+import { auth, db } from "./firebase-config.js";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// LOGIN
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
 
+loginForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    alert("Login successful!");
-    window.location.href = "dashboard.html";
-  } catch (error) {
-    alert(error.message);
+    document.body.classList.add("fade-out");
+    setTimeout(() => window.location.href = "dashboard.html", 350);
+  } catch (err) {
+    alert(err.message);
   }
 });
 
-// SIGNUP
-document.getElementById("signupForm").addEventListener("submit", async (e) => {
+signupForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = document.getElementById("signupName").value;
-  const email = document.getElementById("signupEmail").value;
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value;
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    await set(ref(db, "users/" + user.uid), {
-      name: name,
-      email: email,
-      createdAt: new Date().toISOString()
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCred.user.uid;
+    // Write profile to Realtime Database
+    await set(ref(db, `users/${uid}`), {
+      name, email, createdAt: new Date().toISOString()
     });
-
-    alert("Account created!");
-    window.location.href = "dashboard.html";
-  } catch (error) {
-    alert(error.message);
+    alert("Account created — welcome " + (name||"") );
+    document.body.classList.add("fade-out");
+    setTimeout(() => window.location.href = "dashboard.html", 350);
+  } catch (err) {
+    alert(err.message);
   }
 });
