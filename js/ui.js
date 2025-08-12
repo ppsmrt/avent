@@ -1,22 +1,16 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.getElementById("toggleForm").addEventListener("click", (e) => {
+  e.preventDefault();
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
-  const showSignup = document.getElementById("showSignup");
-  const showLogin = document.getElementById("showLogin");
+  const toggleText = document.getElementById("toggleForm");
 
-  showSignup.addEventListener("click", (e) => {
-    e.preventDefault();
-    loginForm.classList.remove("form-active");
-    loginForm.classList.add("form-hidden");
-    signupForm.classList.remove("form-hidden");
-    signupForm.classList.add("form-active");
-  });
-
-  showLogin.addEventListener("click", (e) => {
-    e.preventDefault();
-    signupForm.classList.remove("form-active");
-    signupForm.classList.add("form-hidden");
-    loginForm.classList.remove("form-hidden");
-    loginForm.classList.add("form-active");
-  });
+  if (loginForm.style.display === "none") {
+    loginForm.style.display = "block";
+    signupForm.style.display = "none";
+    toggleText.textContent = "Don't have an account? Sign up";
+  } else {
+    loginForm.style.display = "none";
+    signupForm.style.display = "block";
+    toggleText.textContent = "Already have an account? Login";
+  }
 });
