@@ -1,131 +1,118 @@
-// js/dashboard.js
 import { auth, db } from "./firebase-config.js";
+import { ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { ref, push, onValue, set, child, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-/* CONFIG - office location (decimal) */
-const OFFICE_LAT = 12.969556;
+// --- Office Location (Latitude & Longitude) ---
+const OFFICE_LAT = 12.969555; 
 const OFFICE_LNG = 80.243833;
-const OFFICE_RADIUS_M = 100;
+const LOCATION_RADIUS = 150; // in meters
 
-const punchInBtn = document.getElementById("punchInBtn");
-const punchOutBtn = document.getElementById("punchOutBtn");
-const punchInTimeEl = document.getElementById("punchInTime");
-const punchOutTimeEl = document.getElementById("punchOutTime");
-const userEmailEl = document.getElementById("userEmail");
-const logoutBtn = document.getElementById("logoutBtn");
-const sidebar = document.getElementById("sidebar");
+// Get today's date in YYYY-MM-DD format
+function getTodayDate() {
+  const today = new Date();
+  return today.toISOString().split("T")[0];
+}
 
-/* util: haversine distance (meters) */
-function getDistanceMeters(lat1, lon1, lat2, lon2){
-  const R = 6371000;
-  const toRad = v => v * Math.PI / 180;
+// Calculate distance between two coordinates (Haversine formula)
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // meters
+  const toRad = (deg) => (deg * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-/* enable/disable UI according to DB state & location */
-function updateButtonsForToday(uid) {
-  const todayKey = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-  const dayRef = ref(db, `attendance/${uid}/${todayKey}`);
-
-  // Listen for changes
-  onValue(dayRef, (snap) => {
-    const val = snap.val() || {};
-    const punchIn = val.punchIn || null;
-    const punchOut = val.punchOut || null;
-
-    punchInTimeEl.textContent = punchIn || "-";
-    punchOutTimeEl.textContent = punchOut || "-";
-
-    // logic:
-    // if no punchIn -> punchIn enabled (if inside location), punchOut disabled
-    // if punchIn exists and no punchOut -> punchIn disabled, punchOut enabled (if inside)
-    // if both exist -> both disabled
-    if (!punchIn) {
-      punchInBtn.dataset.state = "need-in";
-      punchOutBtn.dataset.state = "disabled";
-    } else if (punchIn && !punchOut) {
-      punchInBtn.dataset.state = "disabled";
-      punchOutBtn.dataset.state = "need-out";
-    } else {
-      punchInBtn.dataset.state = "done";
-      punchOutBtn.dataset.state = "done";
-    }
-    updateLocationAndButtons(); // ensure location gating applied
-  });
-}
-
-/* check location and enable if inside and state demands it */
-function updateLocationAndButtons() {
+// Check if inside office location
+function checkLocationAccess(callback) {
   if (!navigator.geolocation) {
-    // fallback: disable both
-    setBtnState(punchInBtn, 'disabled');
-    setBtnState(punchOutBtn, 'disabled');
+    alert("Geolocation not supported by your browser.");
     return;
   }
-  navigator.geolocation.getCurrentPosition((pos) => {
-    const dist = getDistanceMeters(pos.coords.latitude, pos.coords.longitude, OFFICE_LAT, OFFICE_LNG);
-    const inside = dist <= OFFICE_RADIUS_M;
-    // punchIn
-    if (punchInBtn.dataset.state === "need-in" && inside) setBtnState(punchInBtn, 'enabled');
-    else setBtnState(punchInBtn, 'disabled');
-    // punchOut
-    if (punchOutBtn.dataset.state === "need-out" && inside) setBtnState(punchOutBtn, 'enabled');
-    else setBtnState(punchOutBtn, 'disabled');
-  }, (err) => {
-    // on error, disable actionable buttons
-    setBtnState(punchInBtn, 'disabled'); setBtnState(punchOutBtn, 'disabled');
-  }, { enableHighAccuracy: true, maximumAge: 20000, timeout: 5000 });
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const distance = getDistance(
+        position.coords.latitude,
+        position.coords.longitude,
+        OFFICE_LAT,
+        OFFICE_LNG
+      );
+      callback(distance <= LOCATION_RADIUS);
+    },
+    () => alert("Unable to get location. Please enable location services."),
+    { enableHighAccuracy: true }
+  );
 }
 
-/* UI helpers */
-function setBtnState(btn, state) {
-  btn.disabled = (state !== 'enabled');
-  if (state === 'enabled') {
-    btn.classList.remove('btn-disabled'); if (btn.classList.contains('btn-primary-small')) btn.classList.remove('btn-disabled');
+// Update punch buttons state
+function setPunchButtonState(inAllowed, outAllowed) {
+  document.getElementById("punchInBtn").disabled = !inAllowed;
+  document.getElementById("punchOutBtn").disabled = !outAllowed;
+}
+
+// Load today's punch data
+async function loadTodayPunches(uid) {
+  const today = getTodayDate();
+  const punchRef = child(ref(db), `punches/${uid}/${today}`);
+  const snap = await get(punchRef);
+
+  if (snap.exists()) {
+    const data = snap.val();
+    document.getElementById("punchInTime").innerText = data.punchIn || "-";
+    document.getElementById("punchOutTime").innerText = data.punchOut || "-";
   } else {
-    btn.classList.add('btn-disabled');
+    document.getElementById("punchInTime").innerText = "-";
+    document.getElementById("punchOutTime").innerText = "-";
   }
 }
 
-/* main: auth guard + attach handlers */
+// Punch In
+async function punchIn(uid) {
+  checkLocationAccess((inside) => {
+    if (!inside) {
+      alert("You must be inside the office location to Punch In.");
+      return;
+    }
+    const now = new Date().toLocaleTimeString();
+    const today = getTodayDate();
+    set(ref(db, `punches/${uid}/${today}`), { punchIn: now });
+    loadTodayPunches(uid);
+  });
+}
+
+// Punch Out
+async function punchOut(uid) {
+  checkLocationAccess((inside) => {
+    if (!inside) {
+      alert("You must be inside the office location to Punch Out.");
+      return;
+    }
+    const now = new Date().toLocaleTimeString();
+    const today = getTodayDate();
+    update(ref(db, `punches/${uid}/${today}`), { punchOut: now });
+    loadTodayPunches(uid);
+  });
+}
+
+// --- Authentication State ---
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-    return;
+  if (user) {
+    loadTodayPunches(user.uid);
+
+    // Attach button events
+    document.getElementById("punchInBtn").addEventListener("click", () => punchIn(user.uid));
+    document.getElementById("punchOutBtn").addEventListener("click", () => punchOut(user.uid));
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      signOut(auth);
+    });
+
+  } else {
+    window.location.href = "login.html";
   }
-  // show user email
-  userEmailEl.textContent = user.email;
-
-  // ensure today's listener registered
-  updateButtonsForToday(user.uid);
-
-  // set button actions
-  punchInBtn.addEventListener("click", async () => {
-    // write today's punchIn as HH:MM:SS
-    const todayKey = new Date().toISOString().split("T")[0];
-    const timeStr = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-    await set(ref(db, `attendance/${user.uid}/${todayKey}/punchIn`), timeStr);
-    // refresh location gating after write
-    updateLocationAndButtons();
-  });
-
-  punchOutBtn.addEventListener("click", async () => {
-    const todayKey = new Date().toISOString().split("T")[0];
-    const timeStr = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-    await set(ref(db, `attendance/${user.uid}/${todayKey}/punchOut`), timeStr);
-    updateLocationAndButtons();
-  });
-
-  logoutBtn?.addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "index.html";
-  });
-
-  // optional: refresh location gating every 20s while on dashboard
-  setInterval(updateLocationAndButtons, 20000);
 });
