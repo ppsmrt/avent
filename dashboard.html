@@ -7,19 +7,15 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="dashboard-body">
-  <header class="dashboard-header">
-    <h1>Welcome to Aventa</h1>
-    <button id="logoutBtn" class="btn-secondary">Logout</button>
-  </header>
+  <div class="dashboard-container">
+    <h2>Welcome to Aventa</h2>
+    <p id="status">Checking location...</p>
 
-  <main class="dashboard-main">
-    <section class="attendance-section">
-      <h2>Attendance</h2>
-      <p id="statusMessage">Checking location...</p>
-      <button id="punchInBtn" class="btn-primary" disabled>Punch In</button>
-      <button id="punchOutBtn" class="btn-danger" disabled>Punch Out</button>
-    </section>
-  </main>
+    <div class="punch-buttons">
+      <button id="punchIn" class="btn-primary" disabled>Punch In</button>
+      <button id="punchOut" class="btn-danger" disabled>Punch Out</button>
+    </div>
+  </div>
 
   <script type="module" src="js/dashboard.js"></script>
 </body>
