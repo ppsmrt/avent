@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avanta - Punch</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">☰</button>
+  <div class="sidebar">
+    <h2>Avanta</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="punch.html">Punch In/Out</a>
+    <a href="reports.html">Reports</a>
+    <a href="profile.html">Profile</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+
+  <div class="main-content">
+    <h2>Punch In/Out</h2>
+    <div class="card">
+      <button id="punchInBtn" class="btn-disabled" disabled>Punch In</button>
+      <button id="punchOutBtn" class="btn-disabled" disabled>Punch Out</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/punch.js"></script>
+</body>
+</html>
