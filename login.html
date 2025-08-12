@@ -3,22 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aventa - Login</title>
+  <title>Avanta - Login</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="auth-body">
-  <div class="auth-container">
-    <div class="auth-header">
-      <img src="assets/logo.png" alt="Aventa Logo" class="logo">
-      <h1>Aventa</h1>
+<body>
+  <div class="main-content">
+    <div class="card" style="max-width:400px; margin:auto; margin-top:80px;">
+      <h2>Login</h2>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button class="btn-primary" onclick="login()">Login</button>
+      <p>No account? <a href="signup.html">Sign Up</a></p>
     </div>
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="Email" required>
-      <input type="password" id="password" placeholder="Password" required>
-      <button type="submit" class="btn-primary">Login</button>
-    </form>
-    <p class="switch-link">Don't have an account? <a href="signup.html">Sign up</a></p>
   </div>
-  <script type="module" src="js/login.js"></script>
+  <script type="module" src="js/auth.js"></script>
 </body>
 </html>
