@@ -201,3 +201,36 @@ input::placeholder {
   color: #00C6FF;
   text-decoration: none;
 }
+
+.dashboard-body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #101726, #1a2438);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.dashboard-container {
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+}
+
+.punch-buttons {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.btn-danger {
+  padding: 12px;
+  background: linear-gradient(90deg, #FF416C, #FF4B2B);
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: white;
+  cursor: pointer;
+}
