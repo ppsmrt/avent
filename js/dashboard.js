@@ -1,118 +1,154 @@
+// js/dashboard.js
 import { auth, db } from "./firebase-config.js";
-import { ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { ref, set, get, child, onValue, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// --- Office Location (Latitude & Longitude) ---
-const OFFICE_LAT = 12.969555; 
+/* CONFIG - office location (decimal) */
+const OFFICE_LAT = 12.969556;
 const OFFICE_LNG = 80.243833;
-const LOCATION_RADIUS = 150; // in meters
+const OFFICE_RADIUS_M = 100; // meters
 
-// Get today's date in YYYY-MM-DD format
-function getTodayDate() {
-  const today = new Date();
-  return today.toISOString().split("T")[0];
-}
+/* Elements */
+const punchInBtn = document.getElementById("punchInBtn");
+const punchOutBtn = document.getElementById("punchOutBtn");
+const punchInTimeEl = document.getElementById("punchInTime");
+const punchOutTimeEl = document.getElementById("punchOutTime");
+const userEmailEl = document.getElementById("userEmail");
+const logoutBtn = document.getElementById("logoutBtn");
+const sidebar = document.getElementById("sidebar");
 
-// Calculate distance between two coordinates (Haversine formula)
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371000; // meters
-  const toRad = (deg) => (deg * Math.PI) / 180;
+/* Utility: Haversine distance in meters */
+function getDistanceMeters(lat1, lon1, lat2, lon2){
+  const R = 6371000;
+  const toRad = v => v * Math.PI / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
 }
 
-// Check if inside office location
-function checkLocationAccess(callback) {
+/* Helpers for UI states */
+function setBtnState(btn, enabled) {
+  btn.disabled = !enabled;
+  if (enabled) btn.classList.remove("btn-disabled");
+  else btn.classList.add("btn-disabled");
+}
+
+/* Get today's key YYYY-MM-DD */
+function todayKey() {
+  return new Date().toISOString().split("T")[0];
+}
+
+/* Read today's punches for user and update UI state */
+function attachTodayListener(uid) {
+  const dayRef = ref(db, `punches/${uid}/${todayKey()}`);
+
+  onValue(dayRef, (snap) => {
+    const val = snap.val() || {};
+    const punchIn = val.punchIn || null;
+    const punchOut = val.punchOut || null;
+
+    punchInTimeEl.textContent = punchIn || "-";
+    punchOutTimeEl.textContent = punchOut || "-";
+
+    // Determine needed states:
+    // - no punchIn => need-in
+    // - punchIn && no punchOut => need-out
+    // - both exist => done
+    if (!punchIn) {
+      punchInBtn.dataset.state = "need-in";
+      punchOutBtn.dataset.state = "disabled";
+    } else if (punchIn && !punchOut) {
+      punchInBtn.dataset.state = "disabled";
+      punchOutBtn.dataset.state = "need-out";
+    } else {
+      punchInBtn.dataset.state = "done";
+      punchOutBtn.dataset.state = "done";
+    }
+    // After we know DB state, check location to enable actionable buttons
+    checkLocationAndApply();
+  });
+}
+
+/* Check location and enable/disable buttons according to DB states */
+function checkLocationAndApply() {
   if (!navigator.geolocation) {
-    alert("Geolocation not supported by your browser.");
+    // no location -> keep both disabled
+    setBtnState(punchInBtn, false);
+    setBtnState(punchOutBtn, false);
     return;
   }
 
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const distance = getDistance(
-        position.coords.latitude,
-        position.coords.longitude,
-        OFFICE_LAT,
-        OFFICE_LNG
-      );
-      callback(distance <= LOCATION_RADIUS);
-    },
-    () => alert("Unable to get location. Please enable location services."),
-    { enableHighAccuracy: true }
-  );
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const inside = getDistanceMeters(pos.coords.latitude, pos.coords.longitude, OFFICE_LAT, OFFICE_LNG) <= OFFICE_RADIUS_M;
+
+    // punchIn button:
+    if (punchInBtn.dataset.state === "need-in" && inside) setBtnState(punchInBtn, true);
+    else setBtnState(punchInBtn, false);
+
+    // punchOut button:
+    if (punchOutBtn.dataset.state === "need-out" && inside) setBtnState(punchOutBtn, true);
+    else setBtnState(punchOutBtn, false);
+
+  }, (err) => {
+    // error retrieving location: disable actionable buttons
+    setBtnState(punchInBtn, false);
+    setBtnState(punchOutBtn, false);
+  }, { enableHighAccuracy: true, maximumAge: 20000, timeout: 6000 });
 }
 
-// Update punch buttons state
-function setPunchButtonState(inAllowed, outAllowed) {
-  document.getElementById("punchInBtn").disabled = !inAllowed;
-  document.getElementById("punchOutBtn").disabled = !outAllowed;
+/* Write punchIn for today (HH:MM:SS) */
+async function doPunchIn(uid) {
+  const timeStr = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  await set(ref(db, `punches/${uid}/${todayKey()}/punchIn`), timeStr);
 }
 
-// Load today's punch data
-async function loadTodayPunches(uid) {
-  const today = getTodayDate();
-  const punchRef = child(ref(db), `punches/${uid}/${today}`);
-  const snap = await get(punchRef);
-
-  if (snap.exists()) {
-    const data = snap.val();
-    document.getElementById("punchInTime").innerText = data.punchIn || "-";
-    document.getElementById("punchOutTime").innerText = data.punchOut || "-";
-  } else {
-    document.getElementById("punchInTime").innerText = "-";
-    document.getElementById("punchOutTime").innerText = "-";
-  }
+/* Update punchOut for today */
+async function doPunchOut(uid) {
+  const timeStr = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  await update(ref(db, `punches/${uid}/${todayKey()}`), { punchOut: timeStr });
 }
 
-// Punch In
-async function punchIn(uid) {
-  checkLocationAccess((inside) => {
-    if (!inside) {
-      alert("You must be inside the office location to Punch In.");
-      return;
-    }
-    const now = new Date().toLocaleTimeString();
-    const today = getTodayDate();
-    set(ref(db, `punches/${uid}/${today}`), { punchIn: now });
-    loadTodayPunches(uid);
-  });
-}
-
-// Punch Out
-async function punchOut(uid) {
-  checkLocationAccess((inside) => {
-    if (!inside) {
-      alert("You must be inside the office location to Punch Out.");
-      return;
-    }
-    const now = new Date().toLocaleTimeString();
-    const today = getTodayDate();
-    update(ref(db, `punches/${uid}/${today}`), { punchOut: now });
-    loadTodayPunches(uid);
-  });
-}
-
-// --- Authentication State ---
+/* Auth guard & wire everything */
 onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loadTodayPunches(user.uid);
-
-    // Attach button events
-    document.getElementById("punchInBtn").addEventListener("click", () => punchIn(user.uid));
-    document.getElementById("punchOutBtn").addEventListener("click", () => punchOut(user.uid));
-
-    // Logout
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      signOut(auth);
-    });
-
-  } else {
+  if (!user) {
     window.location.href = "login.html";
+    return;
   }
+
+  // populate small user info
+  userEmailEl.textContent = user.email;
+
+  // Attach DB listener for today's punches
+  attachTodayListener(user.uid);
+
+  // Button click handlers (no extra checks here; DB listener + location gating control enabling)
+  punchInBtn.addEventListener("click", async () => {
+    // before writing, verify location once more
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const inside = getDistanceMeters(pos.coords.latitude, pos.coords.longitude, OFFICE_LAT, OFFICE_LNG) <= OFFICE_RADIUS_M;
+      if (!inside) { alert("You must be inside the office to Punch In."); return; }
+      await doPunchIn(user.uid);
+      checkLocationAndApply();
+    }, () => alert("Unable to access location."));
+  });
+
+  punchOutBtn.addEventListener("click", async () => {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const inside = getDistanceMeters(pos.coords.latitude, pos.coords.longitude, OFFICE_LAT, OFFICE_LNG) <= OFFICE_RADIUS_M;
+      if (!inside) { alert("You must be inside the office to Punch Out."); return; }
+      await doPunchOut(user.uid);
+      checkLocationAndApply();
+    }, () => alert("Unable to access location."));
+  });
+
+  // Logout
+  logoutBtn?.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
+  });
+
+  // Periodically refresh location gating while on dashboard (every 20s)
+  setInterval(checkLocationAndApply, 20000);
 });
