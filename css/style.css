@@ -234,3 +234,49 @@ input::placeholder {
   color: white;
   cursor: pointer;
 }
+.dashboard-body {
+  background: linear-gradient(135deg, #0a0f24, #131b40);
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.attendance-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 30px;
+  display: inline-block;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.btn-primary {
+  background: #0df2c9;
+  color: #000;
+  border: none;
+}
+
+.btn-secondary {
+  background: #ff5c8a;
+  color: white;
+  border: none;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
