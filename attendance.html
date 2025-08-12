@@ -1,100 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aventa - Attendance</title>
-  <link rel="stylesheet" href="css/style.css">
+  <title>Aventa Attendance</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #f8fafc;
+      text-align: center;
+      padding: 40px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      background: linear-gradient(90deg, #00f5d4, #00bbf9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    p {
+      color: #94a3b8;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+
+    button {
+      padding: 14px 30px;
+      font-size: 18px;
+      margin: 12px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(90deg, #00f5d4, #00bbf9);
+      box-shadow: 0 4px 20px rgba(0, 191, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    button:hover:enabled {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 191, 255, 0.6);
+    }
+
+    button:disabled {
+      background: #475569;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 25px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #f8fafc;
+    }
+
+    .glow-box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 191, 255, 0.1);
+      max-width: 400px;
+      margin: auto;
+    }
+  </style>
 </head>
 <body>
-  <header class="dashboard-header">
-    <h1>My Attendance</h1>
-    <nav>
-      <a href="dashboard.html" class="btn-secondary">Dashboard</a>
-      <button id="logoutBtn" class="btn-secondary">Logout</button>
-    </nav>
-  </header>
+  <div class="glow-box">
+    <h1>Aventa</h1>
+    <p>Location-based Punch In/Out</p>
 
-  <main>
-    <section class="attendance-actions">
-      <button id="punchInBtn" class="btn-primary">Punch In</button>
-      <button id="punchOutBtn" class="btn-primary">Punch Out</button>
-    </section>
+    <button id="punchInBtn" disabled>Punch In</button>
+    <button id="punchOutBtn" disabled>Punch Out</button>
 
-    <section class="attendance-list">
-      <h2>My Punch History</h2>
-      <table id="attendanceTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Punch In</th>
-            <th>Punch Out</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
+    <div id="status">📍 Checking location...</div>
+  </div>
 
   <script type="module">
-    import { auth, db } from './js/config.js';
-    import { onAuthStateChanged, signOut } 
-      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { ref, push, set, onValue, query, orderByChild, equalTo, get, child, update } 
-      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    let currentUser = null;
+    const firebaseConfig = {
+      apiKey: "AIzaSyATZi32dliIzjOCIXcv1MbxOXhkNjogA6Q",
+      authDomain: "aventattendance.firebaseapp.com",
+      databaseURL: "https://aventattendance-default-rtdb.firebaseio.com/",
+      projectId: "aventattendance",
+      storageBucket: "aventattendance.appspot.com",
+      messagingSenderId: "993022737242",
+      appId: "1:993022737242:web:92c380107f73eb70ac1163"
+    };
 
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "index.html";
-    });
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
-      currentUser = user;
+    const officeLat = 12.969555;
+    const officeLng = 80.243833;
+    const allowedRadius = 100; // meters
 
-      const snap = await get(child(ref(db), "users/" + user.uid));
-      if (!snap.exists() || snap.val().role !== "employee") {
-        alert("Access denied.");
-        window.location.href = "dashboard.html";
-        return;
-      }
-
-      loadMyAttendance();
-    });
-
-    document.getElementById("punchInBtn").addEventListener("click", async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const punchRef = ref(db, "attendance/" + currentUser.uid + "/" + today);
-      await set(punchRef, { punchIn: new Date().toLocaleTimeString(), punchOut: "" });
-    });
-
-    document.getElementById("punchOutBtn").addEventListener("click", async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const punchRef = ref(db, "attendance/" + currentUser.uid + "/" + today);
-      await update(punchRef, { punchOut: new Date().toLocaleTimeString() });
-    });
-
-    function loadMyAttendance() {
-      const q = ref(db, "attendance/" + currentUser.uid);
-      onValue(q, (snapshot) => {
-        const tbody = document.querySelector("#attendanceTable tbody");
-        tbody.innerHTML = "";
-        snapshot.forEach((child) => {
-          const record = child.val();
-          const row = `<tr>
-            <td>${child.key}</td>
-            <td>${record.punchIn || "-"}</td>
-            <td>${record.punchOut || "-"}</td>
-          </tr>`;
-          tbody.innerHTML += row;
-        });
-      });
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const toRad = deg => deg * Math.PI / 180;
+      const φ1 = toRad(lat1), φ2 = toRad(lat2);
+      const Δφ = toRad(lat2 - lat1);
+      const Δλ = toRad(lon2 - lon1);
+      const a = Math.sin(Δφ/2)**2 +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2)**2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
     }
+
+    function checkLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const distance = haversineDistance(lat, lng, officeLat, officeLng);
+
+          if (distance <= allowedRadius) {
+            document.getElementById('status').innerText = "✅ You are inside the office area.";
+            document.getElementById('punchInBtn').disabled = false;
+            document.getElementById('punchOutBtn').disabled = false;
+          } else {
+            document.getElementById('status').innerText = "❌ You are outside the office area.";
+          }
+        }, error => {
+          document.getElementById('status').innerText = "⚠ Unable to retrieve location.";
+        });
+      } else {
+        document.getElementById('status').innerText = "⚠ Geolocation is not supported.";
+      }
+    }
+
+    function recordPunch(type) {
+      const timestamp = new Date().toISOString();
+      push(ref(db, "attendance"), { type, timestamp })
+        .then(() => {
+          document.getElementById('status').innerText = `✔ ${type} recorded at ${new Date().toLocaleTimeString()}`;
+        })
+        .catch(() => {
+          document.getElementById('status').innerText = "⚠ Failed to record.";
+        });
+    }
+
+    document.getElementById('punchInBtn').addEventListener('click', () => recordPunch("Punch In"));
+    document.getElementById('punchOutBtn').addEventListener('click', () => recordPunch("Punch Out"));
+
+    checkLocation();
   </script>
 </body>
 </html>
