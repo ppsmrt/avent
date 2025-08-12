@@ -1,49 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Avanta — Dashboard</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avanta - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="dashboard-body fade-in">
+<body>
+  <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">☰</button>
+  <div class="sidebar">
+    <h2>Avanta</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="punch.html">Punch In/Out</a>
+    <a href="reports.html">Reports</a>
+    <a href="profile.html">Profile</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
 
-  <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar">
-    <div class="brand">
-      <img src="assets/logo.png" alt="Avanta" />
-      <h2>Avanta</h2>
-    </div>
-
-    <nav>
-      <a href="dashboard.html" class="active">Dashboard</a>
-      <a href="attendance.html">Attendance</a>
-      <a href="profile.html">Profile</a>
-      <a href="#" id="logoutBtn">Logout</a>
-    </nav>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <div class="main-header">
-      <h1>Avanta</h1>
-      <div id="userEmail" class="muted"></div>
-    </div>
-
+  <div class="main-content">
+    <h2>Dashboard</h2>
     <div class="card">
-      <h3>Today's Attendance</h3>
-
-      <div class="attendance-row">
-        <button id="punchInBtn" class="btn-primary-small btn-disabled" disabled>Punch In</button>
-        <button id="punchOutBtn" class="btn-secondary-small btn-disabled" disabled>Punch Out</button>
-      </div>
-
-      <div id="punchHistory" class="punch-history" aria-live="polite">
-        <p><strong>Today Punch In:</strong> <span id="punchInTime">-</span></p>
-        <p><strong>Today Punch Out:</strong> <span id="punchOutTime">-</span></p>
-      </div>
+      <h3>Today's Punch Data</h3>
+      <p id="todayPunch">Loading...</p>
     </div>
-  </main>
+  </div>
 
   <script type="module" src="js/dashboard.js"></script>
 </body>
