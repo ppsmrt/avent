@@ -1,45 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Avanta — Dashboard</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aventa - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="dashboard-body fade-in">
+<body>
+  <div class="dashboard-container">
+    <h1>Avanta Dashboard</h1>
 
-  <aside id="sidebar" class="sidebar">
-    <div class="brand">
-      <img src="assets/logo.png" alt="Avanta" />
-      <h2>Avanta</h2>
-    </div>
-    <nav>
-      <a href="dashboard.html" class="active">Dashboard</a>
-      <a href="attendance.html">Attendance</a>
-      <a href="profile.html">Profile</a>
-      <a href="#" id="logoutBtn">Logout</a>
-    </nav>
-  </aside>
-
-  <main class="main-content">
-    <div class="main-header">
-      <h1>Avanta</h1>
-      <div id="userEmail" style="color:var(--muted)"></div>
+    <div class="punch-info">
+      <p><strong>Punch In:</strong> <span id="punchInTime">-</span></p>
+      <p><strong>Punch Out:</strong> <span id="punchOutTime">-</span></p>
     </div>
 
-    <div class="card">
-      <h3>Today's Attendance</h3>
-      <div style="display:flex; gap:12px; margin-top:10px; flex-wrap:wrap;">
-        <button id="punchInBtn" class="btn-primary-small btn-disabled" disabled>Punch In</button>
-        <button id="punchOutBtn" class="btn-secondary-small btn-disabled" disabled>Punch Out</button>
-      </div>
-
-      <div id="punchHistory" class="punch-history">
-        <p><strong>Today Punch In:</strong> <span id="punchInTime">-</span></p>
-        <p><strong>Today Punch Out:</strong> <span id="punchOutTime">-</span></p>
-      </div>
+    <div class="button-group">
+      <button id="punchInBtn" class="btn-primary">Punch In</button>
+      <button id="punchOutBtn" class="btn-secondary">Punch Out</button>
     </div>
-  </main>
+
+    <button id="logoutBtn" class="btn-logout">Logout</button>
+  </div>
 
   <script type="module" src="js/dashboard.js"></script>
 </body>
