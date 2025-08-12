@@ -18,10 +18,19 @@
   </header>
 
   <main class="calendar-main">
+    <div class="export-controls">
+      <button id="exportCSV" class="btn-primary">Export as CSV</button>
+      <button id="exportPDF" class="btn-secondary">Export as PDF</button>
+    </div>
     <div id="calendar"></div>
   </main>
 
+  <!-- External libs -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Firebase config -->
   <script type="module" src="js/attendance.js"></script>
 </body>
 </html>
