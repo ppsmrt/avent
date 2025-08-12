@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aventa - Approve Leave</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="dashboard-header">
+    <h1>Leave Approvals</h1>
+    <nav>
+      <a href="dashboard.html" class="btn-secondary">Dashboard</a>
+      <button id="logoutBtn" class="btn-secondary">Logout</button>
+    </nav>
+  </header>
+
+  <main class="leave-list">
+    <table id="leaveTable">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <script type="module" src="js/leave-approve.js"></script>
+</body>
+</html>
