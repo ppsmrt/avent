@@ -430,3 +430,49 @@ a:hover {
 .sidebar a:hover {
   background: rgba(255,255,255,0.1);
 }
+
+/* HEADER */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #0d3b66, #1f7a8c);
+  padding: 14px 18px;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-left button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.header-right a {
+  color: white;
+  font-size: 20px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.header-right a:hover {
+  transform: scale(1.1);
+  color: #d1ecf1;
+}
+
+/* Sidebar icon spacing */
+.sidebar a i {
+  margin-right: 8px;
+}
