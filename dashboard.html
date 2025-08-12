@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aventa - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="dashboard-body">
+  <header class="dashboard-header">
+    <h1>Welcome to Aventa</h1>
+    <button id="logoutBtn" class="btn-secondary">Logout</button>
+  </header>
+
+  <main class="dashboard-main">
+    <section class="attendance-section">
+      <h2>Attendance</h2>
+      <p id="statusMessage">Checking location...</p>
+      <button id="punchInBtn" class="btn-primary" disabled>Punch In</button>
+      <button id="punchOutBtn" class="btn-danger" disabled>Punch Out</button>
+    </section>
+  </main>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>
