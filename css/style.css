@@ -350,3 +350,83 @@ a:hover {
 /* small helpers */
 .kv { display:flex; gap:8px; align-items:center; justify-content:space-between; }
 .small-muted { color:var(--text-light); font-size:0.9rem; }
+
+/* HEADER */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #ffffff, #eaf4ff);
+  padding: 12px 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  font-family: 'Poppins', sans-serif;
+}
+
+.app-header .header-left button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #0d3b66;
+  cursor: pointer;
+}
+
+.app-header .header-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0d3b66;
+  letter-spacing: 1px;
+}
+
+.app-header .header-right a {
+  color: #0d3b66;
+  font-size: 20px;
+  transition: 0.3s;
+}
+
+.app-header .header-right a:hover {
+  color: #1f7a8c;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 250px;
+  height: 100%;
+  background: #0d3b66;
+  color: white;
+  padding: 20px;
+  transition: left 0.3s ease;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+.sidebar h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin: 8px 0;
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.sidebar a i {
+  margin-right: 10px;
+}
+
+.sidebar a:hover {
+  background: rgba(255,255,255,0.1);
+}
