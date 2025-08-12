@@ -15,7 +15,7 @@
     </div>
 
     <!-- Login Form -->
-    <form id="loginForm" class="form-active">
+    <form id="loginForm">
       <div class="form-group">
         <label>Email</label>
         <input type="email" id="loginEmail" placeholder="you@company.com" required />
@@ -25,13 +25,10 @@
         <input type="password" id="loginPassword" placeholder="••••••••" required />
       </div>
       <button type="submit" class="btn-primary">Login</button>
-      <p style="margin-top:10px; text-align:center;">
-        <a href="#" id="showSignup">Don't have an account? Sign up</a>
-      </p>
     </form>
 
-    <!-- Signup Form -->
-    <form id="signupForm" class="form-hidden">
+    <!-- Signup Form (hidden by default) -->
+    <form id="signupForm" style="display:none;">
       <div class="form-group">
         <label>Name</label>
         <input type="text" id="signupName" placeholder="Your Name" required />
@@ -45,13 +42,15 @@
         <input type="password" id="signupPassword" placeholder="••••••••" required />
       </div>
       <button type="submit" class="btn-primary">Sign Up</button>
-      <p style="margin-top:10px; text-align:center;">
-        <a href="#" id="showLogin">Already have an account? Login</a>
-      </p>
     </form>
+
+    <p class="switch-text">
+      <a href="#" id="toggleForm">Don't have an account? Sign up</a>
+    </p>
   </div>
 
-  <script src="js/auth.js"></script>
+  <!-- Firebase App & Auth -->
+  <script type="module" src="js/auth.js"></script>
   <script src="js/ui.js"></script>
 </body>
 </html>
