@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aventa - Attendance Calendar</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <!-- Simple Calendar CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aventa - Attendance</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="calendar-body">
+<body>
   <header class="dashboard-header">
     <h1>My Attendance</h1>
     <nav>
@@ -17,20 +15,86 @@
     </nav>
   </header>
 
-  <main class="calendar-main">
-    <div class="export-controls">
-      <button id="exportCSV" class="btn-primary">Export as CSV</button>
-      <button id="exportPDF" class="btn-secondary">Export as PDF</button>
-    </div>
-    <div id="calendar"></div>
+  <main>
+    <section class="attendance-actions">
+      <button id="punchInBtn" class="btn-primary">Punch In</button>
+      <button id="punchOutBtn" class="btn-primary">Punch Out</button>
+    </section>
+
+    <section class="attendance-list">
+      <h2>My Punch History</h2>
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Punch In</th>
+            <th>Punch Out</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
   </main>
 
-  <!-- External libs -->
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+  <script type="module">
+    import { auth, db } from './js/config.js';
+    import { onAuthStateChanged, signOut } 
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { ref, push, set, onValue, query, orderByChild, equalTo, get, child, update } 
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-  <!-- Firebase config -->
-  <script type="module" src="js/attendance.js"></script>
+    let currentUser = null;
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+      currentUser = user;
+
+      const snap = await get(child(ref(db), "users/" + user.uid));
+      if (!snap.exists() || snap.val().role !== "employee") {
+        alert("Access denied.");
+        window.location.href = "dashboard.html";
+        return;
+      }
+
+      loadMyAttendance();
+    });
+
+    document.getElementById("punchInBtn").addEventListener("click", async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const punchRef = ref(db, "attendance/" + currentUser.uid + "/" + today);
+      await set(punchRef, { punchIn: new Date().toLocaleTimeString(), punchOut: "" });
+    });
+
+    document.getElementById("punchOutBtn").addEventListener("click", async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const punchRef = ref(db, "attendance/" + currentUser.uid + "/" + today);
+      await update(punchRef, { punchOut: new Date().toLocaleTimeString() });
+    });
+
+    function loadMyAttendance() {
+      const q = ref(db, "attendance/" + currentUser.uid);
+      onValue(q, (snapshot) => {
+        const tbody = document.querySelector("#attendanceTable tbody");
+        tbody.innerHTML = "";
+        snapshot.forEach((child) => {
+          const record = child.val();
+          const row = `<tr>
+            <td>${child.key}</td>
+            <td>${record.punchIn || "-"}</td>
+            <td>${record.punchOut || "-"}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      });
+    }
+  </script>
 </body>
 </html>
