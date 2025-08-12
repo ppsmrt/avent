@@ -1,83 +1,73 @@
 import { auth, db } from "./firebaseConfig.js";
-import { ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { ref, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-// Office location coordinates
-const OFFICE_LAT = 13.0827;  // Example: Chennai
-const OFFICE_LNG = 80.2707;
-const ALLOWED_RADIUS_METERS = 100; // Within 100 meters
+// Office coordinates & radius in meters
+const officeLat = 12.969556;
+const officeLng = 80.243833;
+const officeRadius = 100; // meters
 
-const punchInBtn = document.getElementById("punchIn");
-const punchOutBtn = document.getElementById("punchOut");
-const statusText = document.getElementById("status");
+const punchInBtn = document.getElementById("punchInBtn");
+const punchOutBtn = document.getElementById("punchOutBtn");
 
-// Haversine formula to calculate distance
-function getDistanceMeters(lat1, lon1, lat2, lon2) {
+function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371000; // meters
-  const toRad = (value) => (value * Math.PI) / 180;
-  const φ1 = toRad(lat1), φ2 = toRad(lat2);
-  const Δφ = toRad(lat2 - lat1);
-  const Δλ = toRad(lon2 - lon1);
-
-  const a = Math.sin(Δφ / 2) ** 2 +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
+  const toRad = (x) => x * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2) ** 2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon/2) ** 2;
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
 }
 
-// Check location and enable buttons if inside office area
-function checkLocation() {
+function checkLocationAndEnableButtons() {
   if (!navigator.geolocation) {
-    statusText.textContent = "Geolocation not supported.";
+    alert("Geolocation not supported by your browser");
     return;
   }
-
-  navigator.geolocation.getCurrentPosition((position) => {
-    const distance = getDistanceMeters(
-      position.coords.latitude,
-      position.coords.longitude,
-      OFFICE_LAT,
-      OFFICE_LNG
+  
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const distance = getDistance(
+      pos.coords.latitude,
+      pos.coords.longitude,
+      officeLat,
+      officeLng
     );
 
-    if (distance <= ALLOWED_RADIUS_METERS) {
-      statusText.textContent = "You are in the office area.";
+    if (distance <= officeRadius) {
       punchInBtn.disabled = false;
       punchOutBtn.disabled = false;
     } else {
-      statusText.textContent = "You are outside the office area.";
       punchInBtn.disabled = true;
       punchOutBtn.disabled = true;
+      alert("You are outside the office area.");
     }
   }, () => {
-    statusText.textContent = "Unable to retrieve location.";
+    alert("Unable to retrieve your location");
   });
 }
 
-// Punch In
-punchInBtn.addEventListener("click", () => {
-  const user = auth.currentUser;
-  if (user) {
-    push(ref(db, `attendance/${user.uid}`), {
-      type: "Punch In",
-      timestamp: serverTimestamp()
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+  } else {
+    checkLocationAndEnableButtons();
+
+    punchInBtn.addEventListener("click", () => {
+      push(ref(db, "attendance/" + user.uid), {
+        type: "punch_in",
+        time: new Date().toISOString()
+      });
+      alert("Punched In successfully!");
     });
-    alert("Punched In successfully!");
+
+    punchOutBtn.addEventListener("click", () => {
+      push(ref(db, "attendance/" + user.uid), {
+        type: "punch_out",
+        time: new Date().toISOString()
+      });
+      alert("Punched Out successfully!");
+    });
   }
 });
-
-// Punch Out
-punchOutBtn.addEventListener("click", () => {
-  const user = auth.currentUser;
-  if (user) {
-    push(ref(db, `attendance/${user.uid}`), {
-      type: "Punch Out",
-      timestamp: serverTimestamp()
-    });
-    alert("Punched Out successfully!");
-  }
-});
-
-// Run location check on page load
-checkLocation();
