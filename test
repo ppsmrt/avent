@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avanta - Dashboard</title>
+
+  <!-- Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f8f9fa;
+    }
+
+    /* HEADER */
+    .main-header {
+      background: white;
+      border-bottom: 1px solid rgba(0,128,128,0.15);
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .main-header .menu-toggle,
+    .main-header .settings-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #008080;
+      cursor: pointer;
+    }
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #004d4d;
+      margin: 0;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      left: -250px;
+      top: 0;
+      width: 250px;
+      height: 100%;
+      background: linear-gradient(180deg, #005f5f, #009999);
+      padding-top: 20px;
+      transition: left 0.3s ease;
+      z-index: 9999;
+    }
+    .sidebar.active {
+      left: 0;
+    }
+    .sidebar-logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: white;
+      text-decoration: none;
+      font-size: 15px;
+      transition: background 0.3s ease;
+    }
+    .sidebar a i {
+      margin-right: 10px;
+    }
+    .sidebar a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      padding: 80px 20px;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="main-header">
+    <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1 class="page-title">Dashboard</h1>
+    <button class="settings-btn" onclick="window.location.href='settings.html'">
+      <i class="fas fa-cog"></i>
+    </button>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">Avanta</div>
+    <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="punch.html"><i class="fas fa-clock"></i> Punch In/Out</a>
+    <a href="reports.html"><i class="fas fa-chart-line"></i> Reports</a>
+    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="card">
+      <h2>Welcome Back</h2>
+      <p>This is your dashboard. From here, you can manage attendance, view reports, and more.</p>
+    </div>
+
+    <div class="card">
+      <h3>Today's Punch Status</h3>
+      <p>No punches yet today.</p>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      alert("Logging out...");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
