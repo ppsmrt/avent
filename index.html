@@ -1,55 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aventa - Login</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Avanta — Auth</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body class="login-body">
+<body class="auth-body fade-in">
 
-  <div class="login-container">
-    <div class="login-logo">
-      <img src="assets/logo.png" alt="Aventa Logo" />
-      <h1>Aventa</h1>
+  <div class="auth-container">
+    <div class="auth-header">
+      <img class="logo" src="assets/logo.png" alt="Avanta" />
+      <h1>Avanta</h1>
     </div>
 
-    <!-- Login Form -->
-    <form id="loginForm">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="you@company.com" required />
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="loginPassword" placeholder="••••••••" required />
-      </div>
+    <div class="tabs">
+      <button id="loginTab" class="tab active">Login</button>
+      <button id="signupTab" class="tab">Sign Up</button>
+    </div>
+
+    <!-- LOGIN -->
+    <form id="loginForm" class="form active">
+      <input id="email" type="email" placeholder="Email" required />
+      <input id="password" type="password" placeholder="Password" required />
       <button type="submit" class="btn-primary">Login</button>
     </form>
 
-    <!-- Signup Form (hidden by default) -->
-    <form id="signupForm" style="display:none;">
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" id="signupName" placeholder="Your Name" required />
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="signupEmail" placeholder="you@company.com" required />
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="signupPassword" placeholder="••••••••" required />
-      </div>
+    <!-- SIGNUP -->
+    <form id="signupForm" class="form">
+      <input id="signupName" type="text" placeholder="Full name" required />
+      <input id="signupEmail" type="email" placeholder="Email" required />
+      <input id="signupPassword" type="password" placeholder="Password" required />
       <button type="submit" class="btn-primary">Sign Up</button>
     </form>
-
-    <p class="switch-text">
-      <a href="#" id="toggleForm">Don't have an account? Sign up</a>
-    </p>
   </div>
 
-  <!-- Firebase App & Auth -->
   <script type="module" src="js/auth.js"></script>
   <script src="js/ui.js"></script>
 </body>
