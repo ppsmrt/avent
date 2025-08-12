@@ -1,41 +1,79 @@
-// js/auth.js
-import { auth, db } from "./firebase-config.js";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+// Firebase SDK v9
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getDatabase,
+  ref,
+  set
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-const loginForm = document.getElementById("loginForm");
-const signupForm = document.getElementById("signupForm");
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyATZi32dliIzjOCIXcv1MbxOXhkNjogA6Q",
+  authDomain: "aventattendance.firebaseapp.com",
+  databaseURL: "https://aventattendance-default-rtdb.firebaseio.com/",
+  projectId: "aventattendance",
+  storageBucket: "aventattendance.appspot.com",
+  messagingSenderId: "993022737242",
+  appId: "1:993022737242:web:92c380107f73eb70ac1163"
+};
 
-loginForm?.addEventListener("submit", async (e) => {
-  e.preventDefault();
+// Init Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// Signup
+window.signup = function () {
+  const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    document.body.classList.add("fade-out");
-    setTimeout(() => window.location.href = "dashboard.html", 350);
-  } catch (err) {
-    alert(err.message);
+  const password = document.getElementById("password").value.trim();
+
+  if (!name || !email || !password) {
+    alert("Please fill all fields");
+    return;
   }
-});
 
-signupForm?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const name = document.getElementById("signupName").value.trim();
-  const email = document.getElementById("signupEmail").value.trim();
-  const password = document.getElementById("signupPassword").value;
-
-  try {
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCred.user.uid;
-    // Write profile to Realtime Database
-    await set(ref(db, `users/${uid}`), {
-      name, email, createdAt: new Date().toISOString()
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((cred) => {
+      set(ref(db, "users/" + cred.user.uid), {
+        name: name,
+        email: email
+      });
+      alert("Signup successful!");
+      window.location.href = "dashboard.html";
+    })
+    .catch((err) => {
+      alert(err.message);
     });
-    alert("Account created — welcome " + (name||"") );
-    document.body.classList.add("fade-out");
-    setTimeout(() => window.location.href = "dashboard.html", 350);
-  } catch (err) {
-    alert(err.message);
-  }
-});
+};
+
+// Login
+window.login = function () {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      window.location.href = "dashboard.html";
+    })
+    .catch((err) => {
+      alert(err.message);
+    });
+};
+
+// Logout
+window.logout = function () {
+  signOut(auth)
+    .then(() => {
+      window.location.href = "login.html";
+    })
+    .catch((err) => {
+      alert(err.message);
+    });
+};
