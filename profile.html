@@ -12,34 +12,48 @@
   loadHeader('profile');
 </script>
 
+<!-- Include Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <div class="main-content">
   <h2 class="section-title"><i class="fa fa-id-card"></i> Profile</h2>
 
   <div class="profile-card">
+    <!-- Profile Picture -->
     <div class="profile-picture">
       <img id="profilePic" 
            src="https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png" 
-           alt="Profile Picture"
-           onerror="this.src='https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';">
+           alt="Profile Picture">
     </div>
 
+    <!-- Profile Details -->
     <div class="profile-details">
-      <div class="detail-card"><i class="fa fa-user"></i> <span id="empName">—</span></div>
-      <div class="detail-card"><i class="fa fa-briefcase"></i> <span id="empDesignation">—</span></div>
-      <div class="detail-card"><i class="fa fa-birthday-cake"></i> <span id="empDOB">—</span></div>
-      <div class="detail-card"><i class="fa fa-home"></i> <span id="empAddress">—</span></div>
-      <div class="detail-card"><i class="fa fa-phone"></i> <span id="empEmergency">—</span></div>
-      <div class="detail-card"><i class="fa fa-id-badge"></i> <span id="empID">—</span></div>
-      <div class="detail-card"><i class="fa fa-tint"></i> <span id="empBloodGroup">—</span></div>
+      <div class="detail-card"><i class="fa fa-user"></i> <span id="empName">John Doe</span></div>
+      <div class="detail-card"><i class="fa fa-briefcase"></i> <span id="empDesignation">Software Engineer</span></div>
+      <div class="detail-card"><i class="fa fa-birthday-cake"></i> <span id="empDOB">01 Jan 1990</span></div>
+      <div class="detail-card"><i class="fa fa-home"></i> <span id="empAddress">123 Main St, New York</span></div>
+      <div class="detail-card"><i class="fa fa-phone"></i> <span id="empEmergency">+1 234 567 890</span></div>
+      <div class="detail-card"><i class="fa fa-id-badge"></i> <span id="empID">EMP-1023</span></div>
+      <div class="detail-card"><i class="fa fa-tint"></i> <span id="empBloodGroup">O+</span></div>
     </div>
 
+    <!-- Footer -->
     <div class="profile-footer">
-      <i class="fa fa-info-circle"></i> Request changes to your profile via HR.  
-      Editing will be available in a future update.
+      <i class="fa fa-info-circle"></i> Request changes to your profile via HR. Editing will be available in a future update.
     </div>
   </div>
 </div>
 
+<script>
+  // Fallback image if profilePic is missing or broken
+  const profilePic = document.getElementById('profilePic');
+  profilePic.onerror = function() {
+    this.src = 'https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';
+  };
+  if (!profilePic.src || profilePic.src.trim() === '') {
+    profilePic.src = 'https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';
+  }
+</script>
 <script type="module" src="js/profile.js"></script>
 <script type="module" src="js/profile.js"></script>
 <script src="js/footer.js"></script>
