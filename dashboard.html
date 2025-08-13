@@ -48,26 +48,28 @@
     </div>
   </div>
 
-  <!-- Leave Balance -->
-  <div class="card">
-    <div class="leave-balance-grid">
-      <div>
-        <strong><i class="fas fa-plane-departure" style="color:#f39c12;"></i> Paid Leave</strong>
-        <div class="small-muted" id="paidLeave">—</div>
-      </div>
-      <div>
-        <strong><i class="fas fa-notes-medical" style="color:#e74c3c;"></i> Sick Leave</strong>
-        <div class="small-muted" id="sickLeave">—</div>
-      </div>
+ <!-- Leave Balance -->
+<div class="card">
+  <h3>Leave Balance</h3>
+  <div class="leave-balance-grid">
+    <div>
+      <strong><i class="fas fa-plane-departure" style="color:#f39c12;"></i> Paid Leave</strong>
+      <div class="small-muted" id="paidLeave">—</div>
     </div>
-    <div class="progress-wrap">
-      <div class="small-muted" style="margin-top:8px">Monthly Goal Progress</div>
-      <div class="progress-bar" style="margin-top:8px">
-        <div class="fill" id="goalFill" style="width:0%"></div>
-      </div>
-      <div class="small-muted" id="goalText" style="margin-top:8px">0 / 22 days</div>
+    <div>
+      <strong><i class="fas fa-notes-medical" style="color:#e74c3c;"></i> Sick Leave</strong>
+      <div class="small-muted" id="sickLeave">—</div>
     </div>
   </div>
+</div>
+
+<!-- Monthly Goal Progress -->
+<div class="card">
+  <h3>Monthly Goal Progress</h3>
+  <canvas id="goalChart" width="150" height="150"></canvas>
+  <div class="small-muted" id="goalText" style="margin-top:8px;text-align:center;">0 / 22 days</div>
+</div>
+
 
 <div class="right-column">
   <div class="card">
