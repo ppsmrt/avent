@@ -1,6 +1,7 @@
-// header.js
+import { signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { auth } from './firebase-config.js';
+
 export function loadHeader(activePage = 'dashboard') {
-  // Map of page names to titles & icons
   const pageConfig = {
     dashboard: { title: 'Dashboard', icon: 'fas fa-home' },
     punch: { title: 'Punch In/Out', icon: 'fas fa-fingerprint' },
@@ -35,9 +36,19 @@ export function loadHeader(activePage = 'dashboard') {
       <a href="reports.html" ${activePage === 'reports' ? 'class="active"' : ''}><i class="fas fa-chart-line"></i> Reports</a>
       <a href="profile.html" ${activePage === 'profile' ? 'class="active"' : ''}><i class="fas fa-user"></i> Profile</a>
       <a href="settings.html" ${activePage === 'settings' ? 'class="active"' : ''}><i class="fas fa-cog"></i> Settings</a>
-      <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
   `;
 
   document.body.insertAdjacentHTML('afterbegin', headerHTML);
+
+  // Attach Logout Handler
+  document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    signOut(auth).then(() => {
+      window.location.href = "index.html";
+    }).catch((error) => {
+      alert("Error logging out: " + error.message);
+    });
+  });
 }
