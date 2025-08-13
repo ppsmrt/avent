@@ -5,6 +5,18 @@ import { ref, get, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 const loginForm = document.getElementById("loginForm");
 const loginBtn = document.getElementById("loginBtn");
 
+// Create overlay element
+const overlay = document.createElement("div");
+overlay.id = "loadingOverlay";
+overlay.innerHTML = `
+  <div class="overlay-content">
+    <i class="fa fa-spinner fa-spin"></i>
+    <p>Logging in...</p>
+  </div>
+`;
+document.body.appendChild(overlay);
+overlay.style.display = "none"; // hidden by default
+
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   
@@ -12,18 +24,30 @@ loginForm.addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value.trim();
 
   loginBtn.disabled = true;
-  loginBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Logging in...`;
+  loginBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Logging in...`;
+  overlay.style.display = "flex"; // Show overlay
+  overlay.style.opacity = "1";
 
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     await ensureUserRecord(userCredential.user);
 
-    showNotification("Login successful! Redirecting...", "success");
+    // Change overlay to success message with FA icon
+    overlay.querySelector(".overlay-content").innerHTML = `
+      <i class="fa fa-check-circle" style="color: #4CAF50;"></i>
+      <p>Logged In Successfully</p>
+    `;
 
+    // Fade out after short delay
     setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 1000);
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 500); // Wait for fade-out before redirect
+    }, 800);
+
   } catch (error) {
+    overlay.style.display = "none";
     showNotification("Login failed: " + error.message, "error");
     loginBtn.disabled = false;
     loginBtn.innerHTML = "Login";
@@ -44,7 +68,7 @@ async function ensureUserRecord(user) {
         designation: "Not Available"
       },
       email: user.email || "",
-      sickBalance: 12, // default sick leaves
+      sickBalance: 12,
       createdAt: new Date().toISOString()
     });
   }
@@ -54,7 +78,7 @@ function showNotification(message, type) {
   const notification = document.createElement("div");
   notification.className = `notification ${type}`;
   notification.innerHTML = `
-    <i class="fas ${type === "success" ? "fa-check-circle" : "fa-times-circle"}"></i>
+    <i class="fa ${type === "success" ? "fa-check-circle" : "fa-times-circle"}"></i>
     <span>${message}</span>
   `;
   document.body.appendChild(notification);
