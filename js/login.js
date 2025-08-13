@@ -4,7 +4,7 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-// Redirect already logged-in users to dashboard
+// Redirect if already logged in
 onAuthStateChanged(auth, (user) => {
   if (user) {
     window.location.href = "dashboard.html";
@@ -23,14 +23,13 @@ loginForm.addEventListener("submit", async (e) => {
 
   // Show spinner & disable button
   loginBtn.disabled = true;
-  loginBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Logging in...`;
+  loginBtn.innerHTML = `<div class="btn-spinner"></div> Logging in...`;
   messageBox.textContent = "";
   messageBox.className = "";
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
 
-    // Show success
     messageBox.textContent = "✅ Login successful! Redirecting...";
     messageBox.className = "success-message";
 
@@ -38,11 +37,9 @@ loginForm.addEventListener("submit", async (e) => {
       window.location.href = "dashboard.html";
     }, 800);
   } catch (error) {
-    // Show error
     messageBox.textContent = "❌ " + error.message;
     messageBox.className = "error-message";
   } finally {
-    // Reset button
     loginBtn.disabled = false;
     loginBtn.innerHTML = "Login";
   }
