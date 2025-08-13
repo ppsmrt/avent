@@ -1,177 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f4f7fa;
-    margin: 0;
-    padding: 15px;
-    display: flex;
-    justify-content: center;
-  }
-  .profile-container {
-    background: #fff;
-    max-width: 420px;
-    width: 100%;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    overflow: hidden;
-  }
-  .profile-header {
-    text-align: center;
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-  }
-  .profile-header img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: #ddd;
-  }
-  .profile-header h3 {
-    margin: 10px 0 5px;
-    font-size: 20px;
-    color: #333;
-  }
-  .profile-header p {
-    margin: 0;
-    color: #777;
-    font-size: 14px;
-  }
-  .profile-details {
-    padding: 15px;
-  }
-  .detail-row {
-    display: flex;
-    align-items: center;
-    background: #f9f9f9;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    padding: 10px;
-  }
-  .detail-row i {
-    font-size: 18px;
-    margin-right: 10px;
-    flex-shrink: 0;
-  }
-  .detail-row span {
-    font-size: 14px;
-    color: #333;
-  }
-  /* Colored icons */
-  .icon-dob { color: #ff9800; }
-  .icon-address { color: #9c27b0; }
-  .icon-phone { color: #17a2b8; }
-  .icon-id { color: #6c757d; }
-  .icon-blood { color: #e91e63; }
-
-  .profile-footer {
-    padding: 15px;
-    font-size: 12px;
-    color: #777;
-    text-align: center;
-    background: #fafafa;
-    border-top: 1px solid #eee;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <header class="topbar">
+    <h1>My Profile</h1>
+    <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+  </header>
 
-<!-- Header -->
-<script type="module">
-  import { loadHeader } from './js/header.js';
-  loadHeader('profile'); // This will set title "" with home icon
-</script>
+  <main class="profile-container">
+    <section class="profile-header">
+      <div class="avatar" id="profileAvatar">U</div>
+      <div class="info">
+        <h2 id="fullName">Loading...</h2>
+        <p id="designation">Employee</p>
+        <p id="email">email@example.com</p>
+      </div>
+    </section>
 
-<div class="profile-container">
-  <!-- Profile Header -->
-  <div class="profile-header">
-    <img id="profilePic" src="https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png" alt="Profile Picture">
-    <h3 id="empName">—</h3>
-    <p id="empDesignation">—</p>
-  </div>
+    <section class="profile-details">
+      <div class="detail-item"><strong>Employee ID:</strong> <span id="empId">—</span></div>
+      <div class="detail-item"><strong>Department:</strong> <span id="department">—</span></div>
+      <div class="detail-item"><strong>Date Joined:</strong> <span id="joinDate">—</span></div>
+      <div class="detail-item"><strong>Phone:</strong> <span id="phone">—</span></div>
+    </section>
+  </main>
 
-  <!-- Details -->
-  <div class="profile-details">
-    <div class="detail-row">
-      <i class="fa fa-birthday-cake icon-dob"></i>
-      <span id="empDOB">—</span>
-    </div>
-    <div class="detail-row">
-      <i class="fa fa-home icon-address"></i>
-      <span id="empAddress">—</span>
-    </div>
-    <div class="detail-row">
-      <i class="fa fa-phone-alt icon-phone"></i>
-      <span id="empEmergency">—</span>
-    </div>
-    <div class="detail-row">
-      <i class="fa fa-id-badge icon-id"></i>
-      <span id="empID">—</span>
-    </div>
-    <div class="detail-row">
-      <i class="fa fa-tint icon-blood"></i>
-      <span id="empBloodGroup">—</span>
-    </div>
-  </div>
-
-  <div class="profile-footer">
-    <i class="fas fa-info-circle"></i> Request changes to your profile via HR.
-  </div>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyATZi32dliIzjOCIXcv1MbxOXhkNjogA6Q",
-  authDomain: "aventattendance.firebaseapp.com",
-  databaseURL: "https://aventattendance-default-rtdb.firebaseio.com/",
-  projectId: "aventattendance",
-  storageBucket: "aventattendance.appspot.com",
-  messagingSenderId: "993022737242",
-  appId: "1:993022737242:web:92c380107f73eb70ac1163"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  const dbRef = ref(db);
-  get(child(dbRef, `users/${user.uid}`))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        document.getElementById("empName").textContent = data.name || "—";
-        document.getElementById("empDesignation").textContent = data.designation || "—";
-        document.getElementById("empDOB").textContent = data.dob || "—";
-        document.getElementById("empAddress").textContent = data.address || "—";
-        document.getElementById("empEmergency").textContent = data.emergencyContact || "—";
-        document.getElementById("empID").textContent = data.employeeId || "—";
-        document.getElementById("empBloodGroup").textContent = data.bloodGroup || "—";
-      } else {
-        alert("Profile data not found.");
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching profile:", error);
-    });
-});
-</script>
-
+  <script type="module" src="js/profile.js"></script>
 </body>
 </html>
