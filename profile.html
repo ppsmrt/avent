@@ -1,66 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Avanta - Profile</title>
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Profile</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f2f4f7;
+    margin: 0;
+    padding: 0;
+  }
+  .profile-container {
+    max-width: 500px;
+    margin: auto;
+    padding: 15px;
+  }
+  .profile-card, .details-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+  }
+  .profile-header {
+    text-align: center;
+  }
+  .profile-header img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 10px;
+  }
+  .profile-header input {
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    background: transparent;
+  }
+  .profile-header p input {
+    font-size: 14px;
+    font-weight: normal;
+  }
+  .detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f9f9f9;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .detail-row i {
+    font-size: 18px;
+    min-width: 25px;
+    color: #007bff;
+  }
+  .detail-row input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+  }
+  #updateBtn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+</style>
 </head>
 <body>
-<script type="module">
-  import { loadHeader } from './js/header.js';
-  loadHeader('profile');
-</script>
 
-<!-- Include Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div class="profile-container">
 
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database.js"></script>
-
-<div class="main-content">
-  <h2 class="section-title"><i class="fa fa-id-card"></i> Profile</h2>
-
+  <!-- Profile Card -->
   <div class="profile-card">
-    <div class="profile-picture">
-      <img id="profilePic" 
-           src="https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png" 
-           alt="Profile Picture">
-    </div>
-
-    <div class="profile-details">
-      <div class="detail-card name"><i class="fa fa-user"></i> <input id="empName" type="text"></div>
-      <div class="detail-card job"><i class="fa fa-briefcase"></i> <input id="empDesignation" type="text"></div>
-      <div class="detail-card dob"><i class="fa fa-birthday-cake"></i> <input id="empDOB" type="date"></div>
-      <div class="detail-card address"><i class="fa fa-home"></i> <input id="empAddress" type="text"></div>
-      <div class="detail-card phone"><i class="fa fa-phone"></i> <input id="empEmergency" type="tel"></div>
-      <div class="detail-card idnum"><i class="fa fa-id-badge"></i> <input id="empID" type="text"></div>
-      <div class="detail-card blood"><i class="fa fa-tint"></i> <input id="empBloodGroup" type="text"></div>
-    </div>
-
-    <div class="profile-footer">
-      <button id="updateBtn"><i class="fa fa-save"></i> Update Profile</button>
+    <div class="profile-header">
+      <img id="profilePic" alt="Profile Picture">
+      <div>
+        <input type="text" id="empName" readonly>
+      </div>
+      <p>
+        <input type="text" id="empDesignation" readonly>
+      </p>
     </div>
   </div>
+
+  <!-- Details Card -->
+  <div class="details-card">
+
+    <div class="detail-row">
+      <i class="fa fa-birthday-cake"></i>
+      <input type="text" id="empDOB" readonly>
+    </div>
+
+    <div class="detail-row">
+      <i class="fa fa-home"></i>
+      <input type="text" id="empAddress" readonly>
+    </div>
+
+    <div class="detail-row">
+      <i class="fa fa-phone-alt"></i>
+      <input type="text" id="empEmergency" readonly>
+    </div>
+
+    <div class="detail-row">
+      <i class="fa fa-id-badge"></i>
+      <input type="text" id="empID" readonly>
+    </div>
+
+    <div class="detail-row">
+      <i class="fa fa-tint"></i>
+      <input type="text" id="empBloodGroup" readonly>
+    </div>
+
+    <button id="updateBtn">Update</button>
+  </div>
+
 </div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-<script>
-  // Fallback image if profilePic is missing or broken
-  const profilePic = document.getElementById('profilePic');
-  profilePic.onerror = function() {
-    this.src = 'https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';
+  const firebaseConfig = {
+    apiKey: "AIzaSyATZi32dliIzjOCIXcv1MbxOXhkNjogA6Q",
+    authDomain: "aventattendance.firebaseapp.com",
+    databaseURL: "https://aventattendance-default-rtdb.firebaseio.com/",
+    projectId: "aventattendance",
+    storageBucket: "aventattendance.appspot.com",
+    messagingSenderId: "993022737242",
+    appId: "1:993022737242:web:92c380107f73eb70ac1163"
   };
-  if (!profilePic.src || profilePic.src.trim() === '') {
-    profilePic.src = 'https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const defaultPic = "https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png";
+
+  let currentUserId = null;
+  let editMode = false;
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+    currentUserId = user.uid;
+    loadProfile(user.uid);
+  });
+
+  function loadProfile(uid) {
+    const dbRef = ref(db);
+    get(child(dbRef, `users/${uid}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          document.getElementById("profilePic").src = data.photoURL || defaultPic;
+          document.getElementById("empName").value = data.name || "";
+          document.getElementById("empDesignation").value = data.designation || "";
+          document.getElementById("empDOB").value = data.dob || "";
+          document.getElementById("empAddress").value = data.address || "";
+          document.getElementById("empEmergency").value = data.emergencyContact || "";
+          document.getElementById("empID").value = data.employeeId || "";
+          document.getElementById("empBloodGroup").value = data.bloodGroup || "";
+        } else {
+          alert("Profile data not found.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching profile:", error);
+      });
+  }
+
+  document.getElementById("updateBtn").addEventListener("click", () => {
+    const inputs = document.querySelectorAll("input");
+    editMode = !editMode;
+
+    inputs.forEach(input => {
+      if (input.id !== "empID") {
+        input.readOnly = !editMode;
+      }
+    });
+
+    const btn = document.getElementById("updateBtn");
+    if (editMode) {
+      btn.textContent = "Save";
+    } else {
+      btn.textContent = "Update";
+      saveProfile();
+    }
+  });
+
+  function saveProfile() {
+    if (!currentUserId) return;
+    const updates = {
+      name: document.getElementById("empName").value,
+      designation: document.getElementById("empDesignation").value,
+      dob: document.getElementById("empDOB").value,
+      address: document.getElementById("empAddress").value,
+      emergencyContact: document.getElementById("empEmergency").value,
+      bloodGroup: document.getElementById("empBloodGroup").value
+    };
+    update(ref(db, `users/${currentUserId}`), updates)
+      .then(() => {
+        alert("Profile updated successfully!");
+      })
+      .catch((error) => {
+        console.error("Error updating profile:", error);
+      });
   }
 </script>
-<script type="module" src="js/profile.js"></script>
-<script type="module" src="js/profile.js"></script>
-<script src="js/footer.js"></script>
+
 </body>
 </html>
