@@ -30,13 +30,24 @@
   <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
-  <div class="main-content">
-    <h2>Punch In/Out</h2>
-    <div class="card">
-      <button id="punchInBtn" class="btn-disabled" disabled>Punch In</button>
-      <button id="punchOutBtn" class="btn-disabled" disabled>Punch Out</button>
+ <div class="main-content">
+  <h2 class="section-title"><i class="fas fa-clock"></i> Punch In/Out</h2>
+  
+  <div class="card punch-card">
+    <div class="punch-buttons">
+      <button id="punchInBtn" class="btn-punch btn-in btn-disabled" disabled>
+        <i class="fas fa-sign-in-alt"></i> Punch In
+      </button>
+      <button id="punchOutBtn" class="btn-punch btn-out btn-disabled" disabled>
+        <i class="fas fa-sign-out-alt"></i> Punch Out
+      </button>
+    </div>
+    <div class="punch-info">
+      <p><i class="fas fa-calendar-day"></i> <span id="punchDate">—</span></p>
+      <p><i class="fas fa-history"></i> <span id="lastPunch">No record yet</span></p>
     </div>
   </div>
+</div>
 
   <script type="module" src="js/punch.js"></script>
 </body>
