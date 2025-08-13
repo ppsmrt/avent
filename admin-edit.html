@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Edit Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css"> <!-- your existing CSS -->
+</head>
+<body>
+
+<script type="module">
+  import { loadHeader } from './header.js';
+  loadHeader('profile'); // Highlight "Profile" in sidebar
+</script>
+
+<div class="content" style="padding:15px; margin-top:60px;">
+
+  <!-- Search Box -->
+  <div class="card">
+    <h2><i class="fas fa-search"></i> Search User</h2>
+    <input type="text" id="searchInput" placeholder="Search by full name">
+    <div id="userList"></div>
+  </div>
+
+  <!-- Edit Form -->
+  <div class="card" id="editCard" style="display:none;">
+    <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+    <form id="editForm">
+      <div class="section-title">Basic Info</div>
+      <input type="text" id="fullName" placeholder="Full Name">
+      <input type="text" id="profilePhoto" placeholder="Profile Photo URL">
+      <input type="date" id="dob">
+      <select id="gender">
+        <option value="">Select Gender</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+      <select id="maritalStatus">
+        <option value="">Select Marital Status</option>
+        <option>Single</option>
+        <option>Married</option>
+      </select>
+      <input type="text" id="bloodGroup" placeholder="Blood Group">
+
+      <div class="section-title">Contact Info</div>
+      <input type="email" id="personalEmail" placeholder="Personal Email">
+      <input type="email" id="workEmail" placeholder="Work Email">
+      <input type="text" id="mobile" placeholder="Mobile">
+      <input type="text" id="alternateMobile" placeholder="Alternate Mobile">
+      <textarea id="currentAddress" placeholder="Current Address"></textarea>
+      <textarea id="permanentAddress" placeholder="Permanent Address"></textarea>
+
+      <div class="section-title">Employment Details</div>
+      <input type="text" id="employeeId" placeholder="Employee ID">
+      <input type="text" id="designation" placeholder="Designation">
+      <input type="text" id="department" placeholder="Department">
+      <input type="date" id="dateOfJoining">
+      <input type="text" id="employmentType" placeholder="Employment Type">
+      <input type="text" id="reportingManager" placeholder="Reporting Manager">
+      <input type="text" id="officeLocation" placeholder="Office Location">
+
+      <div class="section-title">Emergency Info</div>
+      <input type="text" id="emergencyContactName" placeholder="Emergency Contact Name">
+      <input type="text" id="emergencyContactNumber" placeholder="Emergency Contact Number">
+      <input type="text" id="emergencyRelation" placeholder="Relation">
+
+      <button type="submit"><i class="fas fa-save"></i> Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+  import { db } from './firebase-config.js';
+  import { ref, get, child, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+  const searchInput = document.getElementById('searchInput');
+  const userList = document.getElementById('userList');
+  const editCard = document.getElementById('editCard');
+  const editForm = document.getElementById('editForm');
+  let selectedUserId = null;
+
+  // Search users by name
+  searchInput.addEventListener('input', async () => {
+    const searchVal = searchInput.value.toLowerCase();
+    userList.innerHTML = '';
+    if (!searchVal) return;
+
+    const snapshot = await get(child(ref(db), 'users'));
+    if (snapshot.exists()) {
+      Object.entries(snapshot.val()).forEach(([uid, data]) => {
+        if (data.basicInfo.fullName.toLowerCase().includes(searchVal)) {
+          const div = document.createElement('div');
+          div.className = 'user-item';
+          div.style.padding = '8px';
+          div.style.cursor = 'pointer';
+          div.style.borderBottom = '1px solid #ddd';
+          div.textContent = data.basicInfo.fullName;
+          div.onclick = () => loadUser(uid, data);
+          userList.appendChild(div);
+        }
+      });
+    }
+  });
+
+  // Load selected user data into form
+  function loadUser(uid, data) {
+    selectedUserId = uid;
+    editCard.style.display = 'block';
+
+    // Fill form
+    document.getElementById('fullName').value = data.basicInfo.fullName || '';
+    document.getElementById('profilePhoto').value = data.basicInfo.profilePhoto || '';
+    document.getElementById('dob').value = data.basicInfo.dob || '';
+    document.getElementById('gender').value = data.basicInfo.gender || '';
+    document.getElementById('maritalStatus').value = data.basicInfo.maritalStatus || '';
+    document.getElementById('bloodGroup').value = data.basicInfo.bloodGroup || '';
+
+    document.getElementById('personalEmail').value = data.contactInfo.personalEmail || '';
+    document.getElementById('workEmail').value = data.contactInfo.workEmail || '';
+    document.getElementById('mobile').value = data.contactInfo.mobile || '';
+    document.getElementById('alternateMobile').value = data.contactInfo.alternateMobile || '';
+    document.getElementById('currentAddress').value = data.contactInfo.currentAddress || '';
+    document.getElementById('permanentAddress').value = data.contactInfo.permanentAddress || '';
+
+    document.getElementById('employeeId').value = data.employmentDetails.employeeId || '';
+    document.getElementById('designation').value = data.employmentDetails.designation || '';
+    document.getElementById('department').value = data.employmentDetails.department || '';
+    document.getElementById('dateOfJoining').value = data.employmentDetails.dateOfJoining || '';
+    document.getElementById('employmentType').value = data.employmentDetails.employmentType || '';
+    document.getElementById('reportingManager').value = data.employmentDetails.reportingManager || '';
+    document.getElementById('officeLocation').value = data.employmentDetails.officeLocation || '';
+
+    document.getElementById('emergencyContactName').value = data.emergencyInfo.contactName || '';
+    document.getElementById('emergencyContactNumber').value = data.emergencyInfo.contactNumber || '';
+    document.getElementById('emergencyRelation').value = data.emergencyInfo.relation || '';
+  }
+
+  // Save changes
+  editForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!selectedUserId) return;
+
+    const updatedData = {
+      basicInfo: {
+        fullName: document.getElementById('fullName').value,
+        profilePhoto: document.getElementById('profilePhoto').value,
+        dob: document.getElementById('dob').value,
+        gender: document.getElementById('gender').value,
+        maritalStatus: document.getElementById('maritalStatus').value,
+        bloodGroup: document.getElementById('bloodGroup').value
+      },
+      contactInfo: {
+        personalEmail: document.getElementById('personalEmail').value,
+        workEmail: document.getElementById('workEmail').value,
+        mobile: document.getElementById('mobile').value,
+        alternateMobile: document.getElementById('alternateMobile').value,
+        currentAddress: document.getElementById('currentAddress').value,
+        permanentAddress: document.getElementById('permanentAddress').value
+      },
+      employmentDetails: {
+        employeeId: document.getElementById('employeeId').value,
+        designation: document.getElementById('designation').value,
+        department: document.getElementById('department').value,
+        dateOfJoining: document.getElementById('dateOfJoining').value,
+        employmentType: document.getElementById('employmentType').value,
+        reportingManager: document.getElementById('reportingManager').value,
+        officeLocation: document.getElementById('officeLocation').value
+      },
+      emergencyInfo: {
+        contactName: document.getElementById('emergencyContactName').value,
+        contactNumber: document.getElementById('emergencyContactNumber').value,
+        relation: document.getElementById('emergencyRelation').value
+      }
+    };
+
+    await update(ref(db, 'users/' + selectedUserId), updatedData);
+    alert('Profile updated successfully!');
+  });
+</script>
+
+</body>
+</html>
