@@ -7,16 +7,28 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">☰</button>
-  <div class="sidebar">
-    <h2>Avanta</h2>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="punch.html">Punch In/Out</a>
-    <a href="reports.html">Reports</a>
-    <a href="profile.html">Profile</a>
-    <a href="settings.html">Settings</a>
-    <a href="#" onclick="logout()">Logout</a>
+  <header class="app-header">
+  <div class="header-left">
+    <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">
+      <i class="fas fa-bars"></i>
+    </button>
   </div>
+  <div class="header-title">Dashboard</div>
+  <div class="header-right">
+    <a href="settings.html"><i class="fas fa-cog"></i></a>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>Avanta</h2>
+  <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="punch.html"><i class="fas fa-fingerprint"></i> Punch In/Out</a>
+  <a href="reports.html"><i class="fas fa-chart-line"></i> Reports</a>
+  <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+  <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
 
   <div class="main-content">
     <h2>Punch In/Out</h2>
