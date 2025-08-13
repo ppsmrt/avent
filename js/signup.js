@@ -5,6 +5,18 @@ import { ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-dat
 const signupForm = document.getElementById("signupForm");
 const signupBtn = document.getElementById("signupBtn");
 
+// Create overlay element
+const overlay = document.createElement("div");
+overlay.id = "loadingOverlay";
+overlay.innerHTML = `
+  <div class="overlay-content">
+    <i class="fa fa-spinner fa-spin"></i>
+    <p>Creating account...</p>
+  </div>
+`;
+document.body.appendChild(overlay);
+overlay.style.display = "none"; // Hidden initially
+
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -13,29 +25,41 @@ signupForm.addEventListener("submit", async (e) => {
   const name = document.getElementById("signupName").value.trim();
 
   signupBtn.disabled = true;
-  signupBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Creating Account...`;
+  signupBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Creating Account...`;
+
+  overlay.style.display = "flex"; // Show overlay
+  overlay.style.opacity = "1";
 
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Store new user in Realtime Database with default values
+    // Store user in Realtime Database with defaults
     await set(ref(db, "users/" + user.uid), {
-      name: name,
+      name: name || "Not Available",
       email: email,
       designation: "Employee",
-      sickBalance: 12, // default leave balance
-      profilePhoto: "https://via.placeholder.com/150", // default profile image
+      sickBalance: 12,
+      profilePhoto: "https://via.placeholder.com/150",
       createdAt: new Date().toISOString()
     });
 
-    showNotification("Signup successful!", "success");
+    // Show success on overlay
+    overlay.querySelector(".overlay-content").innerHTML = `
+      <i class="fa fa-check-circle" style="color: #4CAF50;"></i>
+      <p>Signup Successful</p>
+    `;
 
+    // Fade out and redirect
     setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 1500);
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 500);
+    }, 800);
 
   } catch (error) {
+    overlay.style.display = "none";
     showNotification(error.message, "error");
   } finally {
     signupBtn.disabled = false;
@@ -47,12 +71,10 @@ function showNotification(message, type) {
   const notification = document.createElement("div");
   notification.className = `notification ${type}`;
   notification.innerHTML = `
-    <i class="fas ${type === "success" ? "fa-check-circle" : "fa-times-circle"}"></i>
+    <i class="fa ${type === "success" ? "fa-check-circle" : "fa-times-circle"}"></i>
     <span>${message}</span>
   `;
-
   document.body.appendChild(notification);
-
   setTimeout(() => notification.classList.add("show"), 50);
   setTimeout(() => {
     notification.classList.remove("show");
