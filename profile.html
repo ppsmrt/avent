@@ -6,6 +6,11 @@
 <title>Profile</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
+<script type="module">
+  import { loadHeader } from './js/header.js';
+  loadHeader('dashboard'); // This will set title "Dashboard" with home icon
+</script>
+
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -254,5 +259,8 @@ document.getElementById("updateBtn").addEventListener("click", () => {
   }
 });
 </script>
+
+<script src="js/footer.js"></script>
+
 </body>
 </html>
