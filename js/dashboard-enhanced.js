@@ -3,6 +3,9 @@ import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
+// Hide the body until auth check finishes
+document.body.style.display = "none";
+
 // === DOM elements ===
 const profilePhotoEl = document.getElementById("profilePhoto");
 const fullNameEl = document.getElementById("fullName");
@@ -17,12 +20,10 @@ const sampleHolidays = [
   { date: "2026-01-01", name: "New Year" }
 ];
 
-// === Utility ===
 function todayKey() {
   return new Date().toISOString().split("T")[0];
 }
 
-// === Render Holidays ===
 function renderHolidays() {
   if (!holidaysList) return;
   holidaysList.innerHTML = "";
@@ -38,13 +39,10 @@ function renderHolidays() {
   });
 }
 
-// === Load Dashboard Data ===
 async function loadDashboardForUser(user) {
-  if (!user) return;
   const uid = user.uid;
 
   try {
-    // --- Fetch Profile ---
     const profileSnap = await get(ref(db, `users/${uid}`));
     if (profileSnap.exists()) {
       const profile = profileSnap.val();
@@ -58,7 +56,6 @@ async function loadDashboardForUser(user) {
       }
     }
 
-    // --- Fetch Today’s Attendance ---
     const attendanceSnap = await get(ref(db, `punches/${uid}/${todayKey()}`));
     if (attendanceSnap.exists()) {
       const todayData = attendanceSnap.val();
@@ -82,12 +79,13 @@ async function loadDashboardForUser(user) {
   }
 }
 
-// === Auth State Change ===
+// === Auth Check & Redirect ===
 onAuthStateChanged(auth, user => {
   if (!user) {
-    window.location.href = "login.html";
-    return;
+    window.location.replace("login.html");
+  } else {
+    document.body.style.display = "block"; // Show dashboard only after auth passes
+    renderHolidays();
+    loadDashboardForUser(user);
   }
-  renderHolidays();
-  loadDashboardForUser(user);
 });
