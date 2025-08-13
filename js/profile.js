@@ -5,6 +5,28 @@ import { ref, get, update } from "https://www.gstatic.com/firebasejs/9.23.0/fire
 let profileData = {};
 let isEditing = false;
 let currentUid = null;
+let employeeId = null;
+
+async function getEmployeeId(uid) {
+  // Try authIndex first
+  const indexSnap = await get(ref(db, `authIndex/${uid}`));
+  if (indexSnap.exists()) {
+    return indexSnap.val().employeeId;
+  }
+
+  // Fallback: search in users node for matching authUid
+  const usersSnap = await get(ref(db, "users"));
+  if (usersSnap.exists()) {
+    const usersData = usersSnap.val();
+    for (const empId in usersData) {
+      if (usersData[empId].authUid === uid) {
+        return empId;
+      }
+    }
+  }
+
+  throw new Error("Employee ID not found for this user.");
+}
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -13,23 +35,26 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   currentUid = user.uid;
-  const snapshot = await get(ref(db, `users/${currentUid}`));
 
-  profileData = snapshot.exists() ? snapshot.val() : {};
-  renderProfile(profileData);
+  try {
+    employeeId = await getEmployeeId(currentUid);
+    const snapshot = await get(ref(db, `users/${employeeId}`));
+    profileData = snapshot.exists() ? snapshot.val() : {};
+    renderProfile(profileData);
+  } catch (err) {
+    console.error(err);
+    alert("Error loading profile. Please contact admin.");
+  }
 });
 
 function renderProfile(data) {
-  // View mode display
   document.getElementById('fullName').textContent =
     data.basicInfo?.fullName || 'Not Available';
   document.getElementById('profilePhoto').src =
-    data.basicInfo?.profilePhoto ||
-    'https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';
+    data.basicInfo?.profilePhoto || 'assets/profile.png';
   document.getElementById('designation').textContent =
     data.employmentDetails?.designation || 'Not Available';
 
-  // Convert to editable if needed
   if (isEditing) {
     makeEditable();
   }
@@ -45,7 +70,6 @@ function makeEditable() {
   });
 }
 
-// Edit button
 document.getElementById('editBtn').addEventListener('click', () => {
   isEditing = true;
   renderProfile(profileData);
@@ -53,22 +77,19 @@ document.getElementById('editBtn').addEventListener('click', () => {
   document.getElementById('saveBtn').style.display = 'inline-block';
 });
 
-// Save button
 document.getElementById('saveBtn').addEventListener('click', async () => {
   const inputs = document.querySelectorAll('.detail input');
   let index = 0;
 
-  // Ensure structure exists
   profileData.basicInfo = profileData.basicInfo || {};
   profileData.employmentDetails = profileData.employmentDetails || {};
 
-  // Update basicInfo
-  profileData.basicInfo.fullName = inputs[index++].value || 'Not Available';
-  profileData.basicInfo.profilePhoto = inputs[index++].value || '';
-  profileData.employmentDetails.designation = inputs[index++].value || 'Not Available';
+  profileData.basicInfo.fullName = inputs[index++]?.value || 'Not Available';
+  profileData.basicInfo.profilePhoto = inputs[index++]?.value || '';
+  profileData.employmentDetails.designation = inputs[index++]?.value || 'Not Available';
 
   try {
-    await update(ref(db, `users/${currentUid}`), profileData);
+    await update(ref(db, `users/${employeeId}`), profileData);
     isEditing = false;
     document.getElementById('editBtn').style.display = 'inline-block';
     document.getElementById('saveBtn').style.display = 'none';
