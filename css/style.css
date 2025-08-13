@@ -631,16 +631,6 @@ a:hover {
 
 \\profile page\\\
 
-.profile-card {
-  max-width: 450px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  overflow: hidden;
-  text-align: center;
-}
-
 .profile-header {
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   padding: 30px 20px;
@@ -662,27 +652,24 @@ a:hover {
 }
 
 .profile-details {
-  padding: 20px;
   display: grid;
-  gap: 15px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.detail-item {
+.detail-card {
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
-  font-size: 0.95em;
-  color: #444;
+  font-size: 14px;
 }
 
-.detail-item i {
-  color: #2575fc;
-  margin-right: 10px;
-}
-
-.profile-footer {
-  padding: 15px;
-  font-size: 0.85em;
-  color: #888;
-  border-top: 1px solid #eee;
-  background: #fafafa;
+.detail-card i {
+  margin-right: 8px;
+  color: #007BFF;
+  font-size: 16px;
 }
