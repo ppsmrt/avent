@@ -1,35 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Profile</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="topbar">
-    <h1>My Profile</h1>
-    <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
-  </header>
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-  <main class="profile-container">
-    <section class="profile-header">
-      <div class="avatar" id="profileAvatar">U</div>
-      <div class="info">
-        <h2 id="fullName">Loading...</h2>
-        <p id="designation">Employee</p>
-        <p id="email">email@example.com</p>
-      </div>
-    </section>
+// DOM references
+const el = id => document.getElementById(id);
+const avatarEl = el('profileAvatar');
+const fullNameEl = el('fullName');
+const designationEl = el('designation');
+const emailEl = el('email');
+const empIdEl = el('empId');
+const departmentEl = el('department');
+const joinDateEl = el('joinDate');
+const phoneEl = el('phone');
 
-    <section class="profile-details">
-      <div class="detail-item"><strong>Employee ID:</strong> <span id="empId">—</span></div>
-      <div class="detail-item"><strong>Department:</strong> <span id="department">—</span></div>
-      <div class="detail-item"><strong>Date Joined:</strong> <span id="joinDate">—</span></div>
-      <div class="detail-item"><strong>Phone:</strong> <span id="phone">—</span></div>
-    </section>
-  </main>
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
 
-  <script type="module" src="js/profile.js"></script>
-</body>
-</html>
+  emailEl.textContent = user.email || '—';
+
+  try {
+    const snap = await get(child(ref(db), `users/${user.uid}`));
+    if (snap.exists()) {
+      const profile = snap.val();
+      fullNameEl.textContent = profile.name || '—';
+      designationEl.textContent = profile.designation || '—';
+      avatarEl.textContent = profile.name 
+        ? profile.name.split(' ').map(p => p[0]).slice(0, 2).join('')
+        : (user.email[0] || 'U').toUpperCase();
+
+      empIdEl.textContent = profile.empId || '—';
+      departmentEl.textContent = profile.department || '—';
+      joinDateEl.textContent = profile.joinDate || '—';
+      phoneEl.textContent = profile.phone || '—';
+    }
+  } catch (e) {
+    console.error("Failed to fetch profile:", e);
+  }
+});
