@@ -1,42 +1,48 @@
-import { auth, db } from "./firebase-config.js";
+import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// DOM references
-const el = id => document.getElementById(id);
-const avatarEl = el('profileAvatar');
-const fullNameEl = el('fullName');
-const designationEl = el('designation');
-const emailEl = el('email');
-const empIdEl = el('empId');
-const departmentEl = el('department');
-const joinDateEl = el('joinDate');
-const phoneEl = el('phone');
-
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, (user) => {
   if (!user) {
-    window.location.href = 'login.html';
+    window.location.href = "login.html";
     return;
   }
 
-  emailEl.textContent = user.email || '—';
+  const dbRef = ref(db);
+  get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
+    if (!snapshot.exists()) return;
 
-  try {
-    const snap = await get(child(ref(db), `users/${user.uid}`));
-    if (snap.exists()) {
-      const profile = snap.val();
-      fullNameEl.textContent = profile.name || '—';
-      designationEl.textContent = profile.designation || '—';
-      avatarEl.textContent = profile.name 
-        ? profile.name.split(' ').map(p => p[0]).slice(0, 2).join('')
-        : (user.email[0] || 'U').toUpperCase();
+    const data = snapshot.val();
 
-      empIdEl.textContent = profile.empId || '—';
-      departmentEl.textContent = profile.department || '—';
-      joinDateEl.textContent = profile.joinDate || '—';
-      phoneEl.textContent = profile.phone || '—';
-    }
-  } catch (e) {
-    console.error("Failed to fetch profile:", e);
-  }
+    // Basic Info
+    document.getElementById('fullName').textContent = data.basicInfo?.fullName || '—';
+    document.getElementById('profilePhoto').src = data.basicInfo?.profilePhoto || 'https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';
+    document.getElementById('dob').textContent = data.basicInfo?.dob || '—';
+    document.getElementById('gender').textContent = data.basicInfo?.gender || '—';
+    document.getElementById('bloodGroup').textContent = data.basicInfo?.bloodGroup || '—';
+    document.getElementById('maritalStatus').textContent = data.basicInfo?.maritalStatus || '—';
+
+    // Contact Info
+    document.getElementById('personalEmail').textContent = data.contactInfo?.personalEmail || '—';
+    document.getElementById('workEmail').textContent = data.contactInfo?.workEmail || '—';
+    document.getElementById('mobile').textContent = data.contactInfo?.mobile || '—';
+    document.getElementById('alternateMobile').textContent = data.contactInfo?.alternateMobile || '—';
+    document.getElementById('currentAddress').textContent = data.contactInfo?.currentAddress || '—';
+    document.getElementById('permanentAddress').textContent = data.contactInfo?.permanentAddress || '—';
+
+    // Employment
+    document.getElementById('designation').textContent = data.employmentDetails?.designation || '—';
+    document.getElementById('employeeId').textContent = data.employmentDetails?.employeeId || '—';
+    document.getElementById('designationDetail').textContent = data.employmentDetails?.designation || '—';
+    document.getElementById('department').textContent = data.employmentDetails?.department || '—';
+    document.getElementById('dateOfJoining').textContent = data.employmentDetails?.dateOfJoining || '—';
+    document.getElementById('employmentType').textContent = data.employmentDetails?.employmentType || '—';
+    document.getElementById('reportingManager').textContent = data.employmentDetails?.reportingManager || '—';
+    document.getElementById('officeLocation').textContent = data.employmentDetails?.officeLocation || '—';
+
+    // Emergency
+    document.getElementById('emergencyName').textContent = data.emergencyInfo?.contactName || '—';
+    document.getElementById('emergencyNumber').textContent = data.emergencyInfo?.contactNumber || '—';
+    document.getElementById('emergencyRelation').textContent = data.emergencyInfo?.relation || '—';
+  });
 });
