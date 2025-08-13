@@ -630,25 +630,31 @@ a:hover {
 }
 
 ///Dashboard - Leave Balance///
+
 .leave-balance-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  margin-top: 15px;
+  margin: 15px 0;
 }
 
 .leave-card {
   display: flex;
   align-items: center;
   background: #fff;
-  padding: 12px;
+  padding: 14px;
   border-radius: 10px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease-in-out;
+}
+
+.leave-card:hover {
+  transform: translateY(-3px);
 }
 
 .leave-card .icon {
   font-size: 1.8rem;
-  margin-right: 10px;
+  margin-right: 12px;
 }
 
 .leave-card .title {
@@ -661,4 +667,11 @@ a:hover {
   font-size: 1.2rem;
   font-weight: bold;
   color: #34495e;
+}
+
+@media (max-width: 600px) {
+  .leave-balance-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
 }
