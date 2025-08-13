@@ -1,11 +1,10 @@
 import { auth, db } from "./firebase-config.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const loginForm = document.getElementById("loginForm");
 const loginBtn = document.getElementById("loginBtn");
 
-// Optional overlay
 const overlay = document.createElement("div");
 overlay.id = "loadingOverlay";
 overlay.innerHTML = `
@@ -27,33 +26,28 @@ loginForm.addEventListener("submit", async (e) => {
   overlay.style.display = "flex";
 
   try {
-    // Authenticate
+    // Login
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Fetch employee record based on authUid
-    const snapshot = await get(child(ref(db), "users"));
-    let employeeData = null;
-    let employeeId = null;
-
-    if (snapshot.exists()) {
-      snapshot.forEach((childSnap) => {
-        if (childSnap.val().authUid === user.uid) {
-          employeeId = childSnap.key;
-          employeeData = childSnap.val();
-        }
-      });
+    // Get employeeId from index
+    const indexSnap = await get(ref(db, "authIndex/" + user.uid));
+    if (!indexSnap.exists()) {
+      throw new Error("No employee record found for this account.");
     }
+    const { employeeId } = indexSnap.val();
 
-    if (!employeeData) {
-      throw new Error("Employee record not found for this account.");
+    // Get employee details
+    const userSnap = await get(ref(db, "users/" + employeeId));
+    if (!userSnap.exists()) {
+      throw new Error("Employee details missing in database.");
     }
+    const employeeData = userSnap.val();
 
-    // Save to localStorage for session use
+    // Store in localStorage
     localStorage.setItem("employeeId", employeeId);
     localStorage.setItem("employeeData", JSON.stringify(employeeData));
 
-    // Success feedback
     overlay.querySelector(".overlay-content").innerHTML = `
       <i class="fa fa-check-circle" style="color: #4CAF50; font-size: 2rem;"></i>
       <p>Login Successful</p>
