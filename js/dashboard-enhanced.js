@@ -22,11 +22,18 @@ const sickBalanceEl = document.getElementById("sickBalance");
 const presenceStatusEl = document.getElementById("presenceStatus");
 const holidaysList = document.getElementById("holidaysList");
 
+// New Leave Balance DOM elements
+const leaveSL = document.getElementById("leaveSL");
+const leaveCL = document.getElementById("leaveCL");
+const leavePL = document.getElementById("leavePL");
+const leaveEL = document.getElementById("leaveEL");
+
 let profileLoaded = false;
 let attendanceLoaded = false;
+let leavesLoaded = false;
 
 function checkDataLoaded() {
-  if (profileLoaded && attendanceLoaded) {
+  if (profileLoaded && attendanceLoaded && leavesLoaded) {
     loader.remove();
     document.body.style.opacity = "1"; // fade-in
   }
@@ -61,7 +68,6 @@ async function getEmployeeId(uid) {
   let employeeId = localStorage.getItem("employeeId");
   if (employeeId) return employeeId;
 
-  // Try authIndex mapping
   const indexSnap = await get(ref(db, `authIndex/${uid}`));
   if (indexSnap.exists()) {
     employeeId = indexSnap.val().employeeId;
@@ -69,7 +75,6 @@ async function getEmployeeId(uid) {
     return employeeId;
   }
 
-  // Fallback search in users node
   const usersSnap = await get(ref(db, "users"));
   if (usersSnap.exists()) {
     const usersData = usersSnap.val();
@@ -126,6 +131,24 @@ function loadDashboardForUser(employeeId, user) {
       presenceStatusEl.className = "status-absent";
     }
     attendanceLoaded = true;
+    checkDataLoaded();
+  });
+
+  // === Real-time leave balance listener ===
+  onValue(ref(db, `users/${employeeId}/leaveBalance`), snapshot => {
+    if (snapshot.exists()) {
+      const leaves = snapshot.val();
+      leaveSL.textContent = leaves.sl ?? 0;
+      leaveCL.textContent = leaves.cl ?? 0;
+      leavePL.textContent = leaves.pl ?? 0;
+      leaveEL.textContent = leaves.el ?? 0;
+    } else {
+      leaveSL.textContent = 12;
+      leaveCL.textContent = 12;
+      leavePL.textContent = 12;
+      leaveEL.textContent = 12;
+    }
+    leavesLoaded = true;
     checkDataLoaded();
   });
 }
