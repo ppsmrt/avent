@@ -707,3 +707,46 @@ h3 {
 .fa {
   color: #4a90e2;
 }
+
+///Signup Js///
+/* Premium notification style */
+.notification {
+  position: fixed;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+
+.notification i {
+  font-size: 18px;
+}
+
+.notification.success {
+  border-left: 6px solid #27ae60;
+  color: #27ae60;
+}
+
+.notification.error {
+  border-left: 6px solid #e74c3c;
+  color: #e74c3c;
+}
+
+.notification.show {
+  top: 20px;
+}
+
+/* Button spinner style */
+button i.fa-spinner {
+  margin-right: 6px;
+}
