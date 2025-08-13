@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase-config.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const loginForm = document.getElementById("loginForm");
 const loginBtn = document.getElementById("loginBtn");
@@ -30,19 +30,18 @@ loginForm.addEventListener("submit", async (e) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Get employeeId from index
-    const indexSnap = await get(ref(db, "authIndex/" + user.uid));
-    if (!indexSnap.exists()) {
+    // Find employee record by authUid
+    const employeeQuery = query(ref(db, "users"), orderByChild("authUid"), equalTo(user.uid));
+    const snapshot = await get(employeeQuery);
+
+    if (!snapshot.exists()) {
       throw new Error("No employee record found for this account.");
     }
-    const { employeeId } = indexSnap.val();
 
-    // Get employee details
-    const userSnap = await get(ref(db, "users/" + employeeId));
-    if (!userSnap.exists()) {
-      throw new Error("Employee details missing in database.");
-    }
-    const employeeData = userSnap.val();
+    // Since the result is an object keyed by employeeId, extract first match
+    const employees = snapshot.val();
+    const employeeId = Object.keys(employees)[0];
+    const employeeData = employees[employeeId];
 
     // Store in localStorage
     localStorage.setItem("employeeId", employeeId);
