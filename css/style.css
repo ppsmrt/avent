@@ -523,3 +523,9 @@ a:hover {
   text-align: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
+.leave-balance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
