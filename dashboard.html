@@ -16,7 +16,14 @@
   loadHeader('dashboard'); // This will set title "Dashboard" with home icon
 </script>
 
-  <!-- START: Dashboard Enhanced Content -->
+<div class="card">
+        <strong>Alerts & Exceptions</strong>
+        <div class="alerts" id="alertsArea">
+          <!-- alerts -->
+        </div>
+      </div>
+
+  <!-- START: Dashboard Enhanced Content --!>
 <div class="main-content">
   <!-- LEFT COLUMN -->
 <div class="left-column">
@@ -70,15 +77,6 @@
 </div>
 
 
-
-<!-- Monthly Goal Progress -->
-<div class="card">
-  <h3>Monthly Goal Progress</h3>
-  <canvas id="goalChart" width="150" height="150"></canvas>
-  <div class="small-muted" id="goalText" style="margin-top:8px;text-align:center;">0 / 22 days</div>
-</div>
-
-
 <div class="right-column">
   <div class="card">
     <h3>Today's Attendance</h3>
@@ -108,14 +106,7 @@
       <div id="presenceStatus" style="font-weight:700;color:var(--primary-blue)">—</div>
     </div>
 
-    <!-- AI Insights -->
-    <div style="margin-top:12px;">
-      <strong>AI Punctuality Insights</strong>
-      <p id="aiInsights" class="small-muted" style="margin-top:6px;">Loading insights…</p>
-    </div>
-  </div>
-</div>
-
+    
       <div class="card chart-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong>Monthly Overview</strong>
@@ -134,43 +125,7 @@
         </div>
       </div>
 
-      <div class="card">
-        <strong>Alerts & Exceptions</strong>
-        <div class="alerts" id="alertsArea">
-          <!-- alerts -->
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>Recognition Highlights</strong>
-          <div class="small-muted">Top performers</div>
-        </div>
-        <div class="rec-card" id="recArea" style="margin-top:10px;">
-          <!-- recognition items -->
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>Mood Check-in</strong>
-          <div class="small-muted">How are you feeling today?</div>
-        </div>
-        <div class="mood-row" id="moodRow">
-          <div class="mood-emoji" data-mood="happy">🙂</div>
-          <div class="mood-emoji" data-mood="okay">😐</div>
-          <div class="mood-emoji" data-mood="tired">🙁</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <strong>Attendance Heatmap</strong>
-        <div class="heatmap" id="heatmapArea">
-          <!-- 7 x 5 = 35 days placeholder -->
-        </div>
-      </div>
-    </div>
-
+      
   </div>
 </div>
 <!-- END: Dashboard Enhanced Content -->
