@@ -476,3 +476,8 @@ a:hover {
 .sidebar a i {
   margin-right: 8px;
 }
+
+/* Make header icons white */
+.app-header i {
+  color: white !important;
+}
