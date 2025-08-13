@@ -5,29 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Avanta - Sign Up</title>
   <link rel="stylesheet" href="css/style.css">
-<header class="app-header">
-      <div class="header-title">Avent</div>
-    </header>
+  <header class="app-header">
+    <div class="header-title">Avent</div>
+  </header>
 </head>
 <body>
   <div class="main-content">
     <div class="card" style="max-width:400px; margin:auto; margin-top:80px;">
       <h2>Sign Up</h2>
       <form id="signupForm">
+        <input type="text" id="employeeId" placeholder="Employee ID" required>
         <input type="text" id="signupName" placeholder="Full Name" required>
         <input type="email" id="signupEmail" placeholder="Email" required>
         <input type="password" id="signupPassword" placeholder="Password" required>
-        <button type="submit" class="btn-primary">Create Account</button>
+        <button type="submit" class="btn-primary" id="signupBtn">Create Account</button>
       </form>
       <p>Already have an account? <a href="login.html">Login</a></p>
     </div>
   </div>
-  <script type="module" src="js/signup.js"></script>
-<footer class="footer">
-  <div class="footer-center">
-    © <span id="year"></span> Avent. All Rights Reserved.
-  </div>
-</footer>
 
+  <script type="module">
+    import { auth, db } from "./js/firebase-config.js";
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const signupForm = document.getElementById("signupForm");
+    const signupBtn = document.getElementById("signupBtn");
+
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const employeeId = document.getElementById("employeeId").value.trim();
+      const name = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value.trim();
+
+      signupBtn.disabled = true;
+      signupBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Creating Account...`;
+
+      try {
+        // Create Firebase Auth user
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Save in DB under employeeId
+        await set(ref(db, "users/" + employeeId), {
+          authUid: user.uid,
+          employeeId: employeeId,
+          name: name,
+          email: email,
+          designation: "Employee",
+          sickBalance: 12,
+          profilePhoto: "https://via.placeholder.com/150",
+          createdAt: new Date().toISOString()
+        });
+
+        alert("Signup successful!");
+        window.location.href = "dashboard.html";
+
+      } catch (error) {
+        alert("Error: " + error.message);
+      } finally {
+        signupBtn.disabled = false;
+        signupBtn.innerHTML = "Create Account";
+      }
+    });
+  </script>
+
+  <footer class="footer">
+    <div class="footer-center">
+      © <span id="year"></span> Avent. All Rights Reserved.
+    </div>
+  </footer>
 </body>
 </html>
