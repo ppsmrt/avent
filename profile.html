@@ -15,25 +15,29 @@
   <div class="main-content">
   <h2 class="section-title"><i class="fas fa-id-card"></i> Profile</h2>
 
-  <div class="card profile-card">
-    <div class="profile-info">
-      <p><strong><i class="fas fa-user"></i> Name:</strong> <span id="empName">—</span></p>
-      <p><strong><i class="fas fa-briefcase"></i> Designation:</strong> <span id="empDesignation">—</span></p>
-      <p><strong><i class="fas fa-birthday-cake"></i> Date of Birth:</strong> <span id="empDOB">—</span></p>
-      <p><strong><i class="fas fa-home"></i> Address:</strong> <span id="empAddress">—</span></p>
-      <p><strong><i class="fas fa-phone-alt"></i> Emergency Contact:</strong> <span id="empEmergency">—</span></p>
-      <p><strong><i class="fas fa-id-badge"></i> Employee ID:</strong> <span id="empID">—</span></p>
-      <p><strong><i class="fas fa-tint"></i> Blood Group:</strong> <span id="empBloodGroup">—</span></p>
+  <div class="profile-card">
+    <div class="profile-header">
+      <img id="profilePic" class="profile-img" src="assets/default-avatar.png" alt="Profile Picture">
+      <h3 id="empName">—</h3>
+      <p id="empDesignation" class="designation">—</p>
+    </div>
+
+    <div class="profile-details">
+      <div class="detail-item"><i class="fas fa-birthday-cake"></i> <span id="empDOB">—</span></div>
+      <div class="detail-item"><i class="fas fa-home"></i> <span id="empAddress">—</span></div>
+      <div class="detail-item"><i class="fas fa-phone-alt"></i> <span id="empEmergency">—</span></div>
+      <div class="detail-item"><i class="fas fa-id-badge"></i> <span id="empID">—</span></div>
+      <div class="detail-item"><i class="fas fa-tint"></i> <span id="empBloodGroup">—</span></div>
     </div>
 
     <div class="profile-footer">
-      <p style="margin-top: 15px; font-size: 0.9em; color: #888;">
-        <i class="fas fa-info-circle"></i> Request changes to your profile via HR. Editing will be available in a future update.
-      </p>
+      <i class="fas fa-info-circle"></i> Request changes to your profile via HR.  
+      Editing will be available in a future update.
     </div>
   </div>
 </div>
 
+<script type="module" src="js/profile.js"></script>
 <script type="module" src="js/profile.js"></script>
 <script src="js/footer.js"></script>
 </body>
