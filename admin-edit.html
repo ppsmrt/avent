@@ -1,269 +1,236 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>HR Employee Management</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <title>Admin - Employee Management</title>
   <style>
-    .employee-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
     }
-    .btn-edit {
-      background: #007BFF;
+    #searchInput {
+      padding: 8px;
+      width: 300px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    .employee-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .employee-info {
+      display: flex;
+      align-items: center;
+    }
+    .employee-card img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+    }
+    button {
+      background: #007bff;
       color: white;
       border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
+      padding: 6px 10px;
+      border-radius: 5px;
       cursor: pointer;
     }
-    .btn-edit i {
-      margin-right: 4px;
-    }
-    .btn-edit:hover {
+    button:hover {
       background: #0056b3;
     }
-    .card {
-      max-width: 900px;
-      margin: auto;
-      margin-top: 20px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    /* Popup Form */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background: white;
       padding: 20px;
+      width: 300px;
+      margin: 100px auto;
+      border-radius: 8px;
     }
-    .card h2 {
-      margin-bottom: 16px;
-    }
-    form label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    form input, form select, form textarea {
+    .modal-content input {
       width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    form button {
-      margin-top: 16px;
-      background: #28a745;
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    form button:hover {
-      background: #1e7e34;
+      margin-bottom: 10px;
+      padding: 6px;
     }
   </style>
 </head>
 <body>
+  <h2>Employee Management (Admin/HR)</h2>
+  <input type="text" id="searchInput" placeholder="Search by ID or name..." />
+  <div id="employeeList"></div>
 
-  <header class="app-header">
-    <div class="header-title"><i class="fas fa-users-cog"></i> HR Employee Management</div>
-  </header>
-
-  <div class="card">
-    <h2><i class="fas fa-users"></i> Employee List</h2>
-    <div id="employeeList"></div>
-  </div>
-
-  <div class="card" id="editCard" style="display:none;">
-    <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
-    <form id="editForm">
-      <h3>Basic Info</h3>
-      <label>Full Name</label>
-      <input type="text" id="fullName">
-      <label>Profile Photo URL</label>
-      <input type="text" id="profilePhoto">
-      <label>Date of Birth</label>
-      <input type="date" id="dob">
-      <label>Gender</label>
-      <select id="gender">
-        <option value="">Select</option>
-        <option>Male</option>
-        <option>Female</option>
-        <option>Other</option>
-      </select>
-      <label>Marital Status</label>
-      <select id="maritalStatus">
-        <option value="">Select</option>
-        <option>Single</option>
-        <option>Married</option>
-      </select>
-      <label>Blood Group</label>
-      <input type="text" id="bloodGroup">
-
-      <h3>Contact Info</h3>
-      <label>Personal Email</label>
-      <input type="email" id="personalEmail">
-      <label>Work Email</label>
-      <input type="email" id="workEmail">
-      <label>Mobile</label>
-      <input type="text" id="mobile">
-      <label>Alternate Mobile</label>
-      <input type="text" id="alternateMobile">
-      <label>Current Address</label>
-      <textarea id="currentAddress"></textarea>
-      <label>Permanent Address</label>
-      <textarea id="permanentAddress"></textarea>
-
-      <h3>Employment Details</h3>
-      <label>Employee ID</label>
-      <input type="text" id="employeeId">
-      <label>Designation</label>
-      <input type="text" id="designation">
-      <label>Department</label>
-      <input type="text" id="department">
-      <label>Date of Joining</label>
-      <input type="date" id="dateOfJoining">
-      <label>Employment Type</label>
-      <select id="employmentType">
-        <option value="">Select</option>
-        <option>Full-time</option>
-        <option>Part-time</option>
-        <option>Contract</option>
-      </select>
-      <label>Reporting Manager</label>
-      <input type="text" id="reportingManager">
-      <label>Office Location</label>
-      <input type="text" id="officeLocation">
-
-      <h3>Emergency Info</h3>
-      <label>Contact Name</label>
-      <input type="text" id="emergencyContactName">
-      <label>Contact Number</label>
-      <input type="text" id="emergencyContactNumber">
-      <label>Relation</label>
-      <input type="text" id="emergencyRelation">
-
-      <button type="submit"><i class="fas fa-save"></i> Save Changes</button>
-    </form>
+  <!-- Edit Employee Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h3>Edit Employee</h3>
+      <input type="text" id="editName" placeholder="Name">
+      <input type="text" id="editDesignation" placeholder="Designation">
+      <input type="number" id="editSickBalance" placeholder="Sick Balance">
+      <input type="text" id="editProfilePhoto" placeholder="Profile Photo URL">
+      <button id="saveBtn">Save</button>
+      <button id="closeBtn" style="background:gray">Cancel</button>
+    </div>
   </div>
 
   <script type="module">
-    import { db } from './firebase-config.js';
-    import { ref, get, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    const employeeList = document.getElementById('employeeList');
-    const editCard = document.getElementById('editCard');
-    const editForm = document.getElementById('editForm');
-    let selectedUserId = null;
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyATZi32dliIzjOCIXcv1MbxOXhkNjogA6Q",
+      authDomain: "aventattendance.firebaseapp.com",
+      databaseURL: "https://aventattendance-default-rtdb.firebaseio.com/",
+      projectId: "aventattendance",
+      storageBucket: "aventattendance.appspot.com",
+      messagingSenderId: "993022737242",
+      appId: "1:993022737242:web:92c380107f73eb70ac1163"
+    };
 
-    async function loadEmployees() {
-      employeeList.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
-      const snapshot = await get(ref(db, 'users'));
-      employeeList.innerHTML = '';
-      if (snapshot.exists()) {
-        Object.entries(snapshot.val()).forEach(([uid, data]) => {
-          const name = data.basicInfo?.fullName || "Not Available";
-          const empId = data.employmentDetails?.employeeId || "N/A";
-          const designation = data.employmentDetails?.designation || "Not Available";
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-          const row = document.createElement('div');
-          row.className = "employee-row";
-          row.innerHTML = `
-            <div>
-              <strong>${name}</strong> <small>(${empId})</small><br>
-              <span>${designation}</span>
-            </div>
-            <button class="btn-edit" data-uid="${uid}">
-              <i class="fas fa-edit"></i> Edit
-            </button>
-          `;
-          employeeList.appendChild(row);
-        });
-        document.querySelectorAll('.btn-edit').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const uid = btn.getAttribute('data-uid');
-            const userSnapshot = await get(ref(db, `users/${uid}`));
-            if (userSnapshot.exists()) {
-              loadUser(uid, userSnapshot.val());
-            }
-          });
-        });
-      } else {
-        employeeList.innerHTML = `<p>No employees found.</p>`;
-      }
-    }
+    const employeeListDiv = document.getElementById("employeeList");
+    const searchInput = document.getElementById("searchInput");
 
-    function loadUser(uid, data) {
-      selectedUserId = uid;
-      editCard.style.display = 'block';
-      document.getElementById('fullName').value = data.basicInfo?.fullName || '';
-      document.getElementById('profilePhoto').value = data.basicInfo?.profilePhoto || '';
-      document.getElementById('dob').value = data.basicInfo?.dob || '';
-      document.getElementById('gender').value = data.basicInfo?.gender || '';
-      document.getElementById('maritalStatus').value = data.basicInfo?.maritalStatus || '';
-      document.getElementById('bloodGroup').value = data.basicInfo?.bloodGroup || '';
-      document.getElementById('personalEmail').value = data.contactInfo?.personalEmail || '';
-      document.getElementById('workEmail').value = data.contactInfo?.workEmail || '';
-      document.getElementById('mobile').value = data.contactInfo?.mobile || '';
-      document.getElementById('alternateMobile').value = data.contactInfo?.alternateMobile || '';
-      document.getElementById('currentAddress').value = data.contactInfo?.currentAddress || '';
-      document.getElementById('permanentAddress').value = data.contactInfo?.permanentAddress || '';
-      document.getElementById('employeeId').value = data.employmentDetails?.employeeId || '';
-      document.getElementById('designation').value = data.employmentDetails?.designation || '';
-      document.getElementById('department').value = data.employmentDetails?.department || '';
-      document.getElementById('dateOfJoining').value = data.employmentDetails?.dateOfJoining || '';
-      document.getElementById('employmentType').value = data.employmentDetails?.employmentType || '';
-      document.getElementById('reportingManager').value = data.employmentDetails?.reportingManager || '';
-      document.getElementById('officeLocation').value = data.employmentDetails?.officeLocation || '';
-      document.getElementById('emergencyContactName').value = data.emergencyInfo?.contactName || '';
-      document.getElementById('emergencyContactNumber').value = data.emergencyInfo?.contactNumber || '';
-      document.getElementById('emergencyRelation').value = data.emergencyInfo?.relation || '';
-    }
+    // Modal elements
+    const editModal = document.getElementById("editModal");
+    const editName = document.getElementById("editName");
+    const editDesignation = document.getElementById("editDesignation");
+    const editSickBalance = document.getElementById("editSickBalance");
+    const editProfilePhoto = document.getElementById("editProfilePhoto");
+    const saveBtn = document.getElementById("saveBtn");
+    const closeBtn = document.getElementById("closeBtn");
 
-    editForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!selectedUserId) return;
-      const updatedData = {
-        basicInfo: {
-          fullName: document.getElementById('fullName').value,
-          profilePhoto: document.getElementById('profilePhoto').value,
-          dob: document.getElementById('dob').value,
-          gender: document.getElementById('gender').value,
-          maritalStatus: document.getElementById('maritalStatus').value,
-          bloodGroup: document.getElementById('bloodGroup').value
-        },
-        contactInfo: {
-          personalEmail: document.getElementById('personalEmail').value,
-          workEmail: document.getElementById('workEmail').value,
-          mobile: document.getElementById('mobile').value,
-          alternateMobile: document.getElementById('alternateMobile').value,
-          currentAddress: document.getElementById('currentAddress').value,
-          permanentAddress: document.getElementById('permanentAddress').value
-        },
-        employmentDetails: {
-          employeeId: document.getElementById('employeeId').value,
-          designation: document.getElementById('designation').value,
-          department: document.getElementById('department').value,
-          dateOfJoining: document.getElementById('dateOfJoining').value,
-          employmentType: document.getElementById('employmentType').value,
-          reportingManager: document.getElementById('reportingManager').value,
-          officeLocation: document.getElementById('officeLocation').value
-        },
-        emergencyInfo: {
-          contactName: document.getElementById('emergencyContactName').value,
-          contactNumber: document.getElementById('emergencyContactNumber').value,
-          relation: document.getElementById('emergencyRelation').value
-        }
-      };
-      await update(ref(db, 'users/' + selectedUserId), updatedData);
-      alert('Profile updated successfully!');
-      loadEmployees();
+    let allEmployees = {};
+    let currentEditKey = null;
+
+    // Load employees
+    onValue(ref(db, "users"), (snapshot) => {
+      allEmployees = snapshot.val() || {};
+      renderEmployees();
     });
 
-    loadEmployees();
+    // Search input listener
+    searchInput.addEventListener("input", renderEmployees);
+
+    function renderEmployees() {
+      const searchQuery = searchInput.value.trim().toLowerCase();
+      employeeListDiv.innerHTML = "";
+
+      Object.entries(allEmployees).forEach(([key, empData]) => {
+        let employeeId = "";
+        let name = "";
+        let designation = "";
+        let photo = "";
+        let sickBalance = 0;
+
+        if (empData.employeeId) {
+          // EMPxxx style
+          employeeId = empData.employeeId;
+          name = empData.name || "No Name";
+          designation = empData.designation || "No Designation";
+          photo = empData.profilePhoto || "images/default-avatar.png";
+          sickBalance = empData.sickBalance || 0;
+        } else if (empData.basicInfo) {
+          // UID style
+          employeeId = key;
+          name = empData.basicInfo.name || "No Name";
+          designation = empData.employmentDetails?.designation || "No Designation";
+          photo = empData.basicInfo.profilePhoto || "images/default-avatar.png";
+          sickBalance = empData.sickBalance || 0;
+        } else {
+          return;
+        }
+
+        // Search filter
+        if (
+          searchQuery &&
+          !employeeId.toLowerCase().includes(searchQuery) &&
+          !name.toLowerCase().includes(searchQuery)
+        ) {
+          return;
+        }
+
+        // Card
+        const card = document.createElement("div");
+        card.className = "employee-card";
+        card.innerHTML = `
+          <div class="employee-info">
+            <img src="${photo}" alt="${name}">
+            <div>
+              <strong>${name}</strong><br>
+              <small>${employeeId}</small><br>
+              <span>${designation}</span>
+            </div>
+          </div>
+          <button>Edit</button>
+        `;
+
+        // Edit button listener
+        card.querySelector("button").addEventListener("click", () => {
+          openEditModal(key, { name, designation, sickBalance, profilePhoto: photo });
+        });
+
+        employeeListDiv.appendChild(card);
+      });
+    }
+
+    function openEditModal(empKey, emp) {
+      currentEditKey = empKey;
+      editName.value = emp.name;
+      editDesignation.value = emp.designation;
+      editSickBalance.value = emp.sickBalance;
+      editProfilePhoto.value = emp.profilePhoto;
+      editModal.style.display = "block";
+    }
+
+    // Save changes
+    saveBtn.addEventListener("click", () => {
+      if (!currentEditKey) return;
+
+      const updatedData = {
+        name: editName.value,
+        designation: editDesignation.value,
+        sickBalance: parseInt(editSickBalance.value, 10),
+        profilePhoto: editProfilePhoto.value
+      };
+
+      update(ref(db, `users/${currentEditKey}`), updatedData)
+        .then(() => {
+          alert("Employee updated successfully!");
+          editModal.style.display = "none";
+        })
+        .catch(err => {
+          console.error("Update failed:", err);
+          alert("Error updating employee.");
+        });
+    });
+
+    // Close modal
+    closeBtn.addEventListener("click", () => {
+      editModal.style.display = "none";
+    });
+
+    window.onclick = function(event) {
+      if (event.target == editModal) {
+        editModal.style.display = "none";
+      }
+    };
   </script>
 </body>
 </html>
