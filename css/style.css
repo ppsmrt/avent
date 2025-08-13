@@ -678,51 +678,32 @@ a:hover {
 
 \\\Profile.html\\\\
 
-.profile-container {
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
-}
 .profile-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
+  text-align: center;
 }
-.avatar {
-  background: #0d3b66;
-  color: white;
-  font-size: 2rem;
-  font-weight: bold;
-  width: 80px;
-  height: 80px;
+
+.profile-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
   border-radius: 50%;
+  border: 3px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.detail {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-right: 20px;
+  gap: 10px;
+  margin: 6px 0;
 }
-.profile-details {
-  background: #f8f9fa;
-  border-radius: 10px;
-  padding: 15px;
+
+h3 {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
 }
-.detail-item {
-  padding: 10px 0;
-  border-bottom: 1px solid #ddd;
-}
-.detail-item:last-child {
-  border-bottom: none;
-}
-.topbar {
-  background: #0d3b66;
-  color: white;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.back-btn {
-  color: white;
-  text-decoration: none;
-  font-size: 0.9rem;
+
+.fa {
+  color: #4a90e2;
 }
