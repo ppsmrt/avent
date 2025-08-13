@@ -1,19 +1,38 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { ref, get, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// Hide the body until auth check finishes
-document.body.style.display = "none";
+// Hide body initially and show loading spinner
+document.body.style.opacity = "0";
+document.body.style.transition = "opacity 0.5s ease-in-out";
+const loader = document.createElement("div");
+loader.id = "loadingSpinner";
+loader.style.cssText = `
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 18px; color: #555; text-align: center;
+`;
+loader.innerHTML = `<i class="fas fa-spinner fa-spin" style="font-size:24px;"></i><br>Loading Dashboard...`;
+document.body.appendChild(loader);
 
-// === DOM elements ===
-const profilePhotoEl = document.getElementById("profilePhoto");
+// === DOM Elements ===
+const profilePhotoEl = document.getElementById("profileAvatarImg");
 const fullNameEl = document.getElementById("fullName");
 const designationEl = document.getElementById("designation");
 const sickBalanceEl = document.getElementById("sickBalance");
 const presenceStatusEl = document.getElementById("presenceStatus");
 const holidaysList = document.getElementById("holidaysList");
 
-// === Holidays Data (sample) ===
+let profileLoaded = false;
+let attendanceLoaded = false;
+
+function checkDataLoaded() {
+  if (profileLoaded && attendanceLoaded) {
+    loader.remove();
+    document.body.style.opacity = "1"; // fade-in
+  }
+}
+
+// === Sample Holidays ===
 const sampleHolidays = [
   { date: "2025-12-25", name: "Christmas" },
   { date: "2026-01-01", name: "New Year" }
@@ -39,11 +58,10 @@ function renderHolidays() {
 }
 
 async function getEmployeeId(uid) {
-  // Try localStorage first
   let employeeId = localStorage.getItem("employeeId");
   if (employeeId) return employeeId;
 
-  // Fallback: get from authIndex
+  // Try authIndex mapping
   const indexSnap = await get(ref(db, `authIndex/${uid}`));
   if (indexSnap.exists()) {
     employeeId = indexSnap.val().employeeId;
@@ -51,33 +69,48 @@ async function getEmployeeId(uid) {
     return employeeId;
   }
 
+  // Fallback search in users node
+  const usersSnap = await get(ref(db, "users"));
+  if (usersSnap.exists()) {
+    const usersData = usersSnap.val();
+    for (const empId in usersData) {
+      if (usersData[empId].authUid === uid) {
+        localStorage.setItem("employeeId", empId);
+        return empId;
+      }
+    }
+  }
+
   throw new Error("Employee ID not found for this user.");
 }
 
-async function loadDashboardForUser(user) {
-  try {
-    const employeeId = await getEmployeeId(user.uid);
-
-    // === Load profile ===
-    const profileSnap = await get(ref(db, `users/${employeeId}`));
-    if (profileSnap.exists()) {
-      const profile = profileSnap.val();
+function loadDashboardForUser(employeeId, user) {
+  // === Real-time profile listener ===
+  onValue(ref(db, `users/${employeeId}`), snapshot => {
+    if (snapshot.exists()) {
+      const profile = snapshot.val();
       localStorage.setItem("employeeData", JSON.stringify(profile));
 
-      fullNameEl.textContent = profile.fullName || profile.name || user.email.split("@")[0];
-      designationEl.textContent = profile.designation || "Employee";
-      if (profile.profilePhoto) {
-        profilePhotoEl.src = profile.profilePhoto;
-      }
-      if (profile.sickBalance !== undefined && sickBalanceEl) {
+      fullNameEl.innerHTML = `<i class="fas fa-user-circle" style="color:#007bff;"></i> ${profile.fullName || profile.name || user.email.split("@")[0]}`;
+      designationEl.innerHTML = `<i class="fas fa-briefcase" style="color:#28a745;"></i> ${profile.designation || "Employee"}`;
+      profilePhotoEl.src = profile.profilePhoto || "assets/profile.png";
+
+      if (sickBalanceEl && profile.sickBalance !== undefined) {
         sickBalanceEl.textContent = `${profile.sickBalance} days`;
       }
+    } else {
+      profilePhotoEl.src = "assets/profile.png";
+      fullNameEl.textContent = "Unknown User";
+      designationEl.textContent = "N/A";
     }
+    profileLoaded = true;
+    checkDataLoaded();
+  });
 
-    // === Load attendance for today ===
-    const attendanceSnap = await get(ref(db, `punches/${employeeId}/${todayKey()}`));
-    if (attendanceSnap.exists()) {
-      const todayData = attendanceSnap.val();
+  // === Real-time attendance listener ===
+  onValue(ref(db, `punches/${employeeId}/${todayKey()}`), snapshot => {
+    if (snapshot.exists()) {
+      const todayData = snapshot.val();
       if (todayData.punchIn && todayData.punchOut) {
         presenceStatusEl.textContent = "Present (Completed Workday)";
         presenceStatusEl.className = "status-present";
@@ -92,23 +125,26 @@ async function loadDashboardForUser(user) {
       presenceStatusEl.textContent = "Absent";
       presenceStatusEl.className = "status-absent";
     }
-
-  } catch (e) {
-    console.error("Error loading dashboard data:", e);
-    alert("Error loading dashboard. Please login again.");
-    await signOut(auth);
-    localStorage.clear();
-    window.location.href = "login.html";
-  }
+    attendanceLoaded = true;
+    checkDataLoaded();
+  });
 }
 
-// === Auth Check & Redirect ===
-onAuthStateChanged(auth, user => {
+// === Auth Check ===
+onAuthStateChanged(auth, async user => {
   if (!user) {
     window.location.replace("login.html");
   } else {
-    document.body.style.display = "block"; // Show dashboard only after auth passes
-    renderHolidays();
-    loadDashboardForUser(user);
+    try {
+      renderHolidays();
+      const employeeId = await getEmployeeId(user.uid);
+      loadDashboardForUser(employeeId, user);
+    } catch (err) {
+      console.error("Error loading dashboard:", err);
+      alert("Error loading dashboard. Please login again.");
+      await signOut(auth);
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
   }
 });
