@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getAuth,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
   getDatabase,
@@ -29,37 +30,62 @@ const OFFICE_LAT = 12.969556;
 const OFFICE_LNG = 80.243833;
 const ALLOWED_RADIUS = 200; // meters
 
-onAuthStateChanged(auth, (user) => {
+// === Helper: Get Employee ID ===
+async function getEmployeeId(uid) {
+  let empId = localStorage.getItem("employeeId");
+  if (empId) return empId;
+
+  const indexSnap = await get(ref(db, `authIndex/${uid}`));
+  if (indexSnap.exists()) {
+    empId = indexSnap.val().employeeId;
+    localStorage.setItem("employeeId", empId);
+    return empId;
+  }
+  throw new Error("Employee ID not found");
+}
+
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "login.html";
     return;
   }
 
-  // Show welcome message
-  loadUserName(user.uid);
+  try {
+    const empId = await getEmployeeId(user.uid);
 
-  // Load today's punches from DB
-  loadTodaysPunch(user.uid);
+    // Show welcome message
+    loadUserName(empId);
 
-  // Check location before enabling buttons
-  navigator.geolocation.getCurrentPosition((pos) => {
-    const dist = getDistanceFromLatLonInMeters(
-      pos.coords.latitude,
-      pos.coords.longitude,
-      OFFICE_LAT,
-      OFFICE_LNG
-    );
+    // Load today's punches
+    loadTodaysPunch(empId);
 
-    if (dist <= ALLOWED_RADIUS) {
-      enableButtons(user.uid);
-    } else {
-      alert("You are not inside the office location.");
-    }
-  });
+    // Check location before enabling buttons
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const dist = getDistanceFromLatLonInMeters(
+        pos.coords.latitude,
+        pos.coords.longitude,
+        OFFICE_LAT,
+        OFFICE_LNG
+      );
+
+      if (dist <= ALLOWED_RADIUS) {
+        enableButtons(empId);
+      } else {
+        alert("You are not inside the office location.");
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("Error loading employee profile. Please log in again.");
+    await signOut(auth);
+    localStorage.clear();
+    window.location.href = "login.html";
+  }
 });
 
-function loadUserName(uid) {
-  const nameRef = ref(db, "users/" + uid + "/name");
+function loadUserName(empId) {
+  const nameRef = ref(db, `users/${empId}/name`);
   get(nameRef).then((snapshot) => {
     const name = snapshot.val() || "User";
     document.querySelector(".welcome-message").innerHTML =
@@ -71,7 +97,7 @@ function loadUserName(uid) {
   });
 }
 
-function enableButtons(uid) {
+function enableButtons(empId) {
   const inBtn = document.getElementById("punchInBtn");
   const outBtn = document.getElementById("punchOutBtn");
 
@@ -80,15 +106,15 @@ function enableButtons(uid) {
   inBtn.classList.remove("btn-disabled");
   outBtn.classList.remove("btn-disabled");
 
-  inBtn.onclick = () => punch(uid, "punchIn");
-  outBtn.onclick = () => punch(uid, "punchOut");
+  inBtn.onclick = () => punch(empId, "punchIn");
+  outBtn.onclick = () => punch(empId, "punchOut");
 }
 
-function punch(uid, type) {
+function punch(empId, type) {
   const today = new Date().toISOString().split("T")[0];
   const time = new Date().toLocaleTimeString();
 
-  const punchRef = ref(db, "attendance/" + uid + "/" + today);
+  const punchRef = ref(db, `punches/${empId}/${today}`);
 
   get(punchRef).then((snapshot) => {
     const data = snapshot.val() || {};
@@ -98,7 +124,8 @@ function punch(uid, type) {
     }
 
     update(punchRef, {
-      [type]: time
+      [type]: time,
+      authUid: auth.currentUser.uid // ensure it passes your write rules
     }).then(() => {
       alert(type + " recorded at " + time);
       updateUI(type, time);
@@ -106,9 +133,9 @@ function punch(uid, type) {
   });
 }
 
-function loadTodaysPunch(uid) {
+function loadTodaysPunch(empId) {
   const today = new Date().toISOString().split("T")[0];
-  const punchRef = ref(db, "attendance/" + uid + "/" + today);
+  const punchRef = ref(db, `punches/${empId}/${today}`);
 
   onValue(punchRef, (snapshot) => {
     const data = snapshot.val() || {};
