@@ -1,0 +1,19 @@
+<div id="leavePopup" class="popup">
+  <div class="popup-content">
+    <h3>Leave Request Details</h3>
+    <p><strong>Employee ID:</strong> <span id="popupEmpId"></span></p>
+    <p><strong>Name:</strong> <span id="popupName"></span></p>
+    <p><strong>Type:</strong> <span id="popupType"></span></p>
+    <p><strong>From:</strong> <span id="popupFrom"></span></p>
+    <p><strong>To:</strong> <span id="popupTo"></span></p>
+    <p><strong>Reason:</strong> <span id="popupReason"></span></p>
+
+    <label>HR Comment:</label>
+    <textarea id="hrComment" placeholder="Optional notes..."></textarea>
+
+    <div class="popup-actions">
+      <button id="approveBtn" class="btn btn-success">Approve</button>
+      <button id="rejectBtn" class="btn btn-danger">Reject</button>
+    </div>
+  </div>
+</div>
