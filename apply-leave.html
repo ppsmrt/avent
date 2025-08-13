@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apply Leave</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<main class="container">
+  <h2>Apply for Leave</h2>
+
+  <form id="leaveForm">
+    <label>Leave Type</label>
+    <select id="leaveType" required>
+      <option value="">Select</option>
+      <option value="Sick">Sick Leave</option>
+      <option value="Casual">Casual Leave</option>
+      <option value="Annual">Annual Leave</option>
+    </select>
+
+    <label>Start Date</label>
+    <input type="date" id="startDate" required>
+
+    <label>End Date</label>
+    <input type="date" id="endDate" required>
+
+    <label>
+      <input type="checkbox" id="halfDay"> Half Day
+    </label>
+
+    <label>Reason</label>
+    <textarea id="reason" placeholder="Enter reason" required></textarea>
+
+    <button type="submit" class="btn-primary">Submit Leave Request</button>
+  </form>
+</main>
+
+<script type="module" src="apply-leave.js"></script>
+
+</body>
+</html>
