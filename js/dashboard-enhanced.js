@@ -22,11 +22,11 @@ const sickBalanceEl = document.getElementById("sickBalance");
 const presenceStatusEl = document.getElementById("presenceStatus");
 const holidaysList = document.getElementById("holidaysList");
 
-// New Leave Balance DOM elements
-const leaveSL = document.getElementById("leaveSL");
-const leaveCL = document.getElementById("leaveCL");
-const leavePL = document.getElementById("leavePL");
-const leaveEL = document.getElementById("leaveEL");
+// Leave Balance DOM Elements (from your updated HTML)
+const casualLeaveEl = document.getElementById("casualLeave");
+const sickLeaveEl = document.getElementById("sickLeave");
+const paidLeaveEl = document.getElementById("paidLeave");
+const earnedLeaveEl = document.getElementById("earnedLeave");
 
 let profileLoaded = false;
 let attendanceLoaded = false;
@@ -136,17 +136,18 @@ function loadDashboardForUser(employeeId, user) {
 
   // === Real-time leave balance listener ===
   onValue(ref(db, `users/${employeeId}/leaveBalance`), snapshot => {
+    const defaultLeave = 12;
     if (snapshot.exists()) {
       const leaves = snapshot.val();
-      leaveSL.textContent = leaves.sl ?? 0;
-      leaveCL.textContent = leaves.cl ?? 0;
-      leavePL.textContent = leaves.pl ?? 0;
-      leaveEL.textContent = leaves.el ?? 0;
+      casualLeaveEl.textContent = leaves.cl !== undefined ? leaves.cl : defaultLeave;
+      sickLeaveEl.textContent = leaves.sl !== undefined ? leaves.sl : defaultLeave;
+      paidLeaveEl.textContent = leaves.pl !== undefined ? leaves.pl : defaultLeave;
+      earnedLeaveEl.textContent = leaves.el !== undefined ? leaves.el : defaultLeave;
     } else {
-      leaveSL.textContent = 12;
-      leaveCL.textContent = 12;
-      leavePL.textContent = 12;
-      leaveEL.textContent = 12;
+      casualLeaveEl.textContent = defaultLeave;
+      sickLeaveEl.textContent = defaultLeave;
+      paidLeaveEl.textContent = defaultLeave;
+      earnedLeaveEl.textContent = defaultLeave;
     }
     leavesLoaded = true;
     checkDataLoaded();
