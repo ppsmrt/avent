@@ -1,10 +1,11 @@
 import { auth, db } from "./firebase-config.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const loginForm = document.getElementById("loginForm");
 const loginBtn = document.getElementById("loginBtn");
 
+// Loading overlay
 const overlay = document.createElement("div");
 overlay.id = "loadingOverlay";
 overlay.innerHTML = `
@@ -26,27 +27,29 @@ loginForm.addEventListener("submit", async (e) => {
   overlay.style.display = "flex";
 
   try {
-    // Login
+    // 1️⃣ Authenticate user
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Find employee record by authUid
-    const employeeQuery = query(ref(db, "users"), orderByChild("authUid"), equalTo(user.uid));
-    const snapshot = await get(employeeQuery);
-
-    if (!snapshot.exists()) {
+    // 2️⃣ Get employeeId from authIndex
+    const indexSnap = await get(ref(db, `authIndex/${user.uid}`));
+    if (!indexSnap.exists()) {
       throw new Error("No employee record found for this account.");
     }
+    const { employeeId } = indexSnap.val();
 
-    // Since the result is an object keyed by employeeId, extract first match
-    const employees = snapshot.val();
-    const employeeId = Object.keys(employees)[0];
-    const employeeData = employees[employeeId];
+    // 3️⃣ Fetch employee data
+    const employeeSnap = await get(ref(db, `users/${employeeId}`));
+    if (!employeeSnap.exists()) {
+      throw new Error("Employee data not found.");
+    }
+    const employeeData = employeeSnap.val();
 
-    // Store in localStorage
+    // 4️⃣ Store locally
     localStorage.setItem("employeeId", employeeId);
     localStorage.setItem("employeeData", JSON.stringify(employeeData));
 
+    // 5️⃣ Success animation
     overlay.querySelector(".overlay-content").innerHTML = `
       <i class="fa fa-check-circle" style="color: #4CAF50; font-size: 2rem;"></i>
       <p>Login Successful</p>
@@ -67,6 +70,7 @@ loginForm.addEventListener("submit", async (e) => {
   }
 });
 
+// Notification function
 function showNotification(message, type) {
   const notification = document.createElement("div");
   notification.className = `notification ${type}`;
