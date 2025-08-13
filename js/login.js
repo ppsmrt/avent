@@ -1,98 +1,90 @@
-// js/login.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// Firebase config (replace with your own)
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-
-// Init Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Form
 const loginForm = document.getElementById("loginForm");
+const loginBtn = document.getElementById("loginBtn");
+
+// Optional overlay
+const overlay = document.createElement("div");
+overlay.id = "loadingOverlay";
+overlay.innerHTML = `
+  <div class="overlay-content">
+    <i class="fa fa-spinner fa-spin"></i>
+    <p>Logging in...</p>
+  </div>
+`;
+document.body.appendChild(overlay);
+overlay.style.display = "none";
 
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+
+  loginBtn.disabled = true;
+  overlay.style.display = "flex";
 
   try {
-    // Sign in with Firebase Auth
+    // Authenticate
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Fetch Firestore user doc by email (to get employee ID)
-    const q = query(collection(db, "users"), where("email", "==", email));
-    const querySnapshot = await getDocs(q);
+    // Fetch employee record based on authUid
+    const snapshot = await get(child(ref(db), "users"));
+    let employeeData = null;
+    let employeeId = null;
 
-    if (querySnapshot.empty) {
-      alert("No user record found!");
-      return;
+    if (snapshot.exists()) {
+      snapshot.forEach((childSnap) => {
+        if (childSnap.val().authUid === user.uid) {
+          employeeId = childSnap.key;
+          employeeData = childSnap.val();
+        }
+      });
     }
 
-    let employeeId;
-    querySnapshot.forEach((doc) => {
-      employeeId = doc.data().employeeId;
-    });
+    if (!employeeData) {
+      throw new Error("Employee record not found for this account.");
+    }
 
-    // Store in session for dashboard
-    sessionStorage.setItem("employeeId", employeeId);
+    // Save to localStorage for session use
+    localStorage.setItem("employeeId", employeeId);
+    localStorage.setItem("employeeData", JSON.stringify(employeeData));
 
-    // Show success overlay
-    showSuccessOverlay("Logged In Successful");
+    // Success feedback
+    overlay.querySelector(".overlay-content").innerHTML = `
+      <i class="fa fa-check-circle" style="color: #4CAF50; font-size: 2rem;"></i>
+      <p>Login Successful</p>
+    `;
+
+    setTimeout(() => {
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 500);
+    }, 800);
 
   } catch (error) {
-    alert("Login failed: " + error.message);
+    overlay.style.display = "none";
+    showNotification(error.message, "error");
+  } finally {
+    loginBtn.disabled = false;
   }
 });
 
-function showSuccessOverlay(message) {
-  const overlay = document.createElement("div");
-  overlay.style.position = "fixed";
-  overlay.style.top = "0";
-  overlay.style.left = "0";
-  overlay.style.width = "100%";
-  overlay.style.height = "100%";
-  overlay.style.background = "rgba(0,0,0,0.7)";
-  overlay.style.display = "flex";
-  overlay.style.flexDirection = "column";
-  overlay.style.alignItems = "center";
-  overlay.style.justifyContent = "center";
-  overlay.style.color = "#fff";
-  overlay.style.fontSize = "24px";
-  overlay.style.zIndex = "9999";
-
-  const icon = document.createElement("i");
-  icon.className = "fas fa-check-circle";
-  icon.style.fontSize = "60px";
-  icon.style.marginBottom = "20px";
-  icon.style.color = "#4CAF50";
-
-  const text = document.createElement("div");
-  text.textContent = message;
-
-  overlay.appendChild(icon);
-  overlay.appendChild(text);
-  document.body.appendChild(overlay);
-
-  // Fade out after 2 seconds
+function showNotification(message, type) {
+  const notification = document.createElement("div");
+  notification.className = `notification ${type}`;
+  notification.innerHTML = `
+    <i class="fa ${type === "success" ? "fa-check-circle" : "fa-times-circle"}"></i>
+    <span>${message}</span>
+  `;
+  document.body.appendChild(notification);
+  setTimeout(() => notification.classList.add("show"), 50);
   setTimeout(() => {
-    overlay.style.transition = "opacity 0.8s ease";
-    overlay.style.opacity = "0";
-    setTimeout(() => {
-      overlay.remove();
-      window.location.href = "dashboard.html";
-    }, 800);
-  }, 2000);
+    notification.classList.remove("show");
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
 }
