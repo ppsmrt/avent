@@ -20,9 +20,10 @@ overlay.style.display = "none"; // Hidden initially
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const employeeId = document.getElementById("employeeId").value.trim(); // ✅ Employee ID
+  const name = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value.trim();
-  const name = document.getElementById("signupName").value.trim();
 
   signupBtn.disabled = true;
   signupBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Creating Account...`;
@@ -31,11 +32,14 @@ signupForm.addEventListener("submit", async (e) => {
   overlay.style.opacity = "1";
 
   try {
+    // Create Firebase Auth account
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Store user in Realtime Database with defaults
-    await set(ref(db, "users/" + user.uid), {
+    // Store in Realtime Database under employeeId
+    await set(ref(db, "users/" + employeeId), {
+      authUid: user.uid,          // ✅ Matches your rules
+      employeeId: employeeId,     // ✅ For easy reference
       name: name || "Not Available",
       email: email,
       designation: "Employee",
@@ -44,9 +48,9 @@ signupForm.addEventListener("submit", async (e) => {
       createdAt: new Date().toISOString()
     });
 
-    // Show success on overlay
+    // Success feedback
     overlay.querySelector(".overlay-content").innerHTML = `
-      <i class="fa fa-check-circle" style="color: #4CAF50;"></i>
+      <i class="fa fa-check-circle" style="color: #4CAF50; font-size: 2rem;"></i>
       <p>Signup Successful</p>
     `;
 
