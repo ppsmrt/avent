@@ -675,3 +675,54 @@ a:hover {
     gap: 10px;
   }
 }
+
+\\\Profile.html\\\\
+
+.profile-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+.profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.avatar {
+  background: #0d3b66;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+}
+.profile-details {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+}
+.detail-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+.detail-item:last-child {
+  border-bottom: none;
+}
+.topbar {
+  background: #0d3b66;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.back-btn {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
