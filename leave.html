@@ -1,0 +1,24 @@
+<main class="container">
+  <h2>Apply for Leave</h2>
+
+  <form id="leaveForm">
+    <label>Leave Type</label>
+    <select id="leaveType" required></select>
+
+    <label>Start Date</label>
+    <input type="date" id="startDate" required>
+
+    <label>End Date</label>
+    <input type="date" id="endDate" required>
+
+    <label>Reason</label>
+    <textarea id="reason" required></textarea>
+
+    <button type="submit" class="btn-primary">Submit Leave Request</button>
+  </form>
+
+  <h3>My Leave Balance</h3>
+  <ul id="leaveBalanceList"></ul>
+</main>
+
+<script type="module" src="leave.js"></script>
