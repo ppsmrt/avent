@@ -497,3 +497,29 @@ a:hover {
   border: none;
   cursor: pointer;
 }
+/* Grid for top attendance stats */
+.attendance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Small stat card */
+.att-card {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Status card matches width of all three */
+.status-card {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
