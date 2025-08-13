@@ -1,6 +1,5 @@
-// dashboard.js
 import { auth, db } from "./firebase-config.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 // Hide the body until auth check finishes
@@ -39,13 +38,32 @@ function renderHolidays() {
   });
 }
 
-async function loadDashboardForUser(user) {
-  const uid = user.uid;
+async function getEmployeeId(uid) {
+  // Try localStorage first
+  let employeeId = localStorage.getItem("employeeId");
+  if (employeeId) return employeeId;
 
+  // Fallback: get from authIndex
+  const indexSnap = await get(ref(db, `authIndex/${uid}`));
+  if (indexSnap.exists()) {
+    employeeId = indexSnap.val().employeeId;
+    localStorage.setItem("employeeId", employeeId);
+    return employeeId;
+  }
+
+  throw new Error("Employee ID not found for this user.");
+}
+
+async function loadDashboardForUser(user) {
   try {
-    const profileSnap = await get(ref(db, `users/${uid}`));
+    const employeeId = await getEmployeeId(user.uid);
+
+    // === Load profile ===
+    const profileSnap = await get(ref(db, `users/${employeeId}`));
     if (profileSnap.exists()) {
       const profile = profileSnap.val();
+      localStorage.setItem("employeeData", JSON.stringify(profile));
+
       fullNameEl.textContent = profile.fullName || profile.name || user.email.split("@")[0];
       designationEl.textContent = profile.designation || "Employee";
       if (profile.profilePhoto) {
@@ -56,7 +74,8 @@ async function loadDashboardForUser(user) {
       }
     }
 
-    const attendanceSnap = await get(ref(db, `punches/${uid}/${todayKey()}`));
+    // === Load attendance for today ===
+    const attendanceSnap = await get(ref(db, `punches/${employeeId}/${todayKey()}`));
     if (attendanceSnap.exists()) {
       const todayData = attendanceSnap.val();
       if (todayData.punchIn && todayData.punchOut) {
@@ -76,6 +95,10 @@ async function loadDashboardForUser(user) {
 
   } catch (e) {
     console.error("Error loading dashboard data:", e);
+    alert("Error loading dashboard. Please login again.");
+    await signOut(auth);
+    localStorage.clear();
+    window.location.href = "login.html";
   }
 }
 
