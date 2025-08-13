@@ -12,15 +12,14 @@
     background: #f4f6f9;
     margin: 0;
     padding: 0;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
   }
 
   .container {
     flex: 1;
-    max-width: 600px;
-    margin: auto;
+    width: 100%;
     padding: 15px;
     padding-bottom: 70px; /* space for fixed button */
   }
@@ -28,16 +27,17 @@
   /* Profile Card */
   .profile-card {
     background: white;
-    padding: 20px;
+    padding: 20px 10px;
     text-align: center;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     margin-bottom: 15px;
+    width: 100%;
   }
 
   .profile-img {
-    width: 130px;
-    height: 130px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 10px;
@@ -58,17 +58,18 @@
   /* Details Card */
   .details-card {
     background: white;
-    padding: 15px;
+    padding: 10px;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    width: 100%;
   }
 
   .detail-row {
     display: flex;
     align-items: center;
-    padding: 10px 0;
+    padding: 12px 5px;
     border-bottom: 1px solid #f0f0f0;
-    gap: 10px;
+    gap: 12px;
   }
 
   .detail-row:last-child {
@@ -76,8 +77,8 @@
   }
 
   .detail-row i {
-    font-size: 18px;
-    min-width: 30px;
+    font-size: 20px;
+    min-width: 28px;
     text-align: center;
   }
 
@@ -86,7 +87,7 @@
     border: none;
     background: transparent;
     outline: none;
-    font-size: 14px;
+    font-size: 15px;
   }
 
   /* Colored Icons */
@@ -104,33 +105,17 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    max-width: 600px;
     background: #007bff;
     color: white;
-    padding: 14px;
+    padding: 16px;
     font-size: 16px;
     border: none;
-    border-radius: 0;
     cursor: pointer;
     text-align: center;
   }
 
   #updateBtn:hover {
     background: #0056b3;
-  }
-
-  /* Mobile Responsive */
-  @media (max-width: 600px) {
-    .profile-img {
-      width: 110px;
-      height: 110px;
-    }
-    .profile-name {
-      font-size: 1.2em;
-    }
-    .profile-designation {
-      font-size: 0.9em;
-    }
   }
 </style>
 </head>
@@ -243,6 +228,7 @@ document.getElementById("updateBtn").addEventListener("click", () => {
   if (isReadOnly) {
     document.querySelectorAll(".details-card input").forEach(input => input.readOnly = false);
     document.getElementById("updateBtn").textContent = "Save";
+    document.getElementById("updateBtn").style.background = "#28a745"; // Green for save
   } else {
     const updatedData = {
       name: document.getElementById("empName").value,
@@ -258,6 +244,7 @@ document.getElementById("updateBtn").addEventListener("click", () => {
         alert("Profile updated successfully!");
         document.querySelectorAll(".details-card input").forEach(input => input.readOnly = true);
         document.getElementById("updateBtn").textContent = "Update";
+        document.getElementById("updateBtn").style.background = "#007bff";
         document.getElementById("empNameDisplay").textContent = updatedData.name;
         document.getElementById("empDesignationDisplay").textContent = updatedData.designation;
       })
