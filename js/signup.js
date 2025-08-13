@@ -19,15 +19,13 @@ signupForm.addEventListener("submit", async (e) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
+    // Store new user in Realtime Database with default values
     await set(ref(db, "users/" + user.uid), {
-      basicInfo: {
-        fullName: name || "Not Available",
-        profilePhoto: ""
-      },
-      employmentDetails: {
-        designation: "Not Available"
-      },
+      name: name,
       email: email,
+      designation: "Employee",
+      sickBalance: 12, // default leave balance
+      profilePhoto: "https://via.placeholder.com/150", // default profile image
       createdAt: new Date().toISOString()
     });
 
@@ -52,7 +50,9 @@ function showNotification(message, type) {
     <i class="fas ${type === "success" ? "fa-check-circle" : "fa-times-circle"}"></i>
     <span>${message}</span>
   `;
+
   document.body.appendChild(notification);
+
   setTimeout(() => notification.classList.add("show"), 50);
   setTimeout(() => {
     notification.classList.remove("show");
