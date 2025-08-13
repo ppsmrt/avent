@@ -373,7 +373,7 @@ a:hover {
 .app-header .header-title {
   font-size: 18px;
   font-weight: 600;
-  color: #0d3b66;
+  color: #fffffff;
   letter-spacing: 1px;
 }
 
@@ -478,17 +478,6 @@ a:hover {
 }
 
 /* Header styles */
-.app-header {
-  background: linear-gradient(90deg, #004aad, #0077b6); /* Premium blue gradient */
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 15px;
-  font-family: 'Poppins', sans-serif;
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
 
 /* Make only header icons white */
 .app-header i {
