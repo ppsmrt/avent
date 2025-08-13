@@ -768,3 +768,17 @@ button i.fa-spinner {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
+
+\\\Login Message\\\
+
+.success-message {
+  color: #2ecc71;
+  font-weight: bold;
+  text-align: center;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-weight: bold;
+  text-align: center;
+}
