@@ -1,39 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Avanta - Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
- 
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <header class="topbar">
-    <h1>My Profile</h1>
-    <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
-  </header>
+<script type="module">
+  import { loadHeader } from './js/header.js';
+  loadHeader('profile'); // This will set title with home icon
+</script>
 
-  <main class="profile-container">
-    <section class="profile-header">
-      <div class="avatar" id="profileAvatar">U</div>
-      <div class="info">
-        <h2 id="fullName">Loading...</h2>
-        <p id="designation">Employee</p>
-        <p id="email">email@example.com</p>
-      </div>
-    </section>
+<main class="container">
 
-    <section class="profile-details">
-      <div class="detail-item"><strong>Employee ID:</strong> <span id="empId">—</span></div>
-      <div class="detail-item"><strong>Department:</strong> <span id="department">—</span></div>
-      <div class="detail-item"><strong>Date Joined:</strong> <span id="joinDate">—</span></div>
-      <div class="detail-item"><strong>Phone:</strong> <span id="phone">—</span></div>
-    </section>
-  </main>
+  <!-- Profile Header Card -->
+  <div class="card profile-header">
+    <img id="profilePhoto" class="profile-img" src="https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png" alt="Profile Photo">
+    <h2 id="fullName">—</h2>
+    <p id="designation">—</p>
+  </div>
 
-  <script type="module" src="js/profile.js"></script>
+  <!-- Basic Info -->
+  <div class="card">
+    <h3><i class="fa fa-user-circle"></i> Basic Info</h3>
+    <div class="detail"><i class="fa fa-calendar"></i> <span id="dob">—</span></div>
+    <div class="detail"><i class="fa fa-venus-mars"></i> <span id="gender">—</span></div>
+    <div class="detail"><i class="fa fa-heartbeat"></i> <span id="bloodGroup">—</span></div>
+    <div class="detail"><i class="fa fa-ring"></i> <span id="maritalStatus">—</span></div>
+  </div>
+
+  <!-- Contact Info -->
+  <div class="card">
+    <h3><i class="fa fa-address-book"></i> Contact Info</h3>
+    <div class="detail"><i class="fa fa-envelope"></i> <span id="personalEmail">—</span></div>
+    <div class="detail"><i class="fa fa-briefcase"></i> <span id="workEmail">—</span></div>
+    <div class="detail"><i class="fa fa-phone"></i> <span id="mobile">—</span></div>
+    <div class="detail"><i class="fa fa-phone-volume"></i> <span id="alternateMobile">—</span></div>
+    <div class="detail"><i class="fa fa-map-marker-alt"></i> <span id="currentAddress">—</span></div>
+    <div class="detail"><i class="fa fa-home"></i> <span id="permanentAddress">—</span></div>
+  </div>
+
+  <!-- Employment Details -->
+  <div class="card">
+    <h3><i class="fa fa-building"></i> Employment</h3>
+    <div class="detail"><i class="fa fa-id-badge"></i> <span id="employeeId">—</span></div>
+    <div class="detail"><i class="fa fa-user-tie"></i> <span id="designationDetail">—</span></div>
+    <div class="detail"><i class="fa fa-users"></i> <span id="department">—</span></div>
+    <div class="detail"><i class="fa fa-calendar-plus"></i> <span id="dateOfJoining">—</span></div>
+    <div class="detail"><i class="fa fa-clock"></i> <span id="employmentType">—</span></div>
+    <div class="detail"><i class="fa fa-user-check"></i> <span id="reportingManager">—</span></div>
+    <div class="detail"><i class="fa fa-map-pin"></i> <span id="officeLocation">—</span></div>
+  </div>
+
+  <!-- Emergency Info -->
+  <div class="card">
+    <h3><i class="fa fa-first-aid"></i> Emergency Contact</h3>
+    <div class="detail"><i class="fa fa-user-friends"></i> <span id="emergencyName">—</span></div>
+    <div class="detail"><i class="fa fa-phone-alt"></i> <span id="emergencyNumber">—</span></div>
+    <div class="detail"><i class="fa fa-handshake"></i> <span id="emergencyRelation">—</span></div>
+  </div>
+
+</main>
+
+<script type="module" src="profile.js"></script>
 </body>
 </html>
