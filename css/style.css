@@ -596,3 +596,35 @@ a:hover {
   color: var(--primary-blue);
   margin-right: 6px;
 }
+.welcome-section {
+  margin-bottom: 20px;
+}
+.welcome-message {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-blue);
+}
+.welcome-sub {
+  color: #555;
+  margin-top: 4px;
+}
+.instruction-card ul {
+  padding-left: 20px;
+  margin-top: 8px;
+}
+.instruction-card li {
+  margin-bottom: 5px;
+}
+.warning-box {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 10px;
+  margin-top: 10px;
+  color: #856404;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+.warning-box i {
+  margin-right: 8px;
+}
