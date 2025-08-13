@@ -1,35 +1,35 @@
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { ref, get, set, update, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { ref, get, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 let profileData = {};
 let isEditing = false;
 let currentUid = null;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "login.html";
     return;
   }
 
   currentUid = user.uid;
-  const dbRef = ref(db);
+  const snapshot = await get(ref(db, `users/${currentUid}`));
 
-  get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
-    if (!snapshot.exists()) return;
-
-    profileData = snapshot.val();
-    renderProfile(profileData);
-  });
+  profileData = snapshot.exists() ? snapshot.val() : {};
+  renderProfile(profileData);
 });
 
 function renderProfile(data) {
-  // Display data in spans
-  document.getElementById('fullName').textContent = data.basicInfo?.fullName || '—';
-  document.getElementById('profilePhoto').src = data.basicInfo?.profilePhoto || 'https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';
-  document.getElementById('designation').textContent = data.employmentDetails?.designation || '—';
+  // View mode display
+  document.getElementById('fullName').textContent =
+    data.basicInfo?.fullName || 'Not Available';
+  document.getElementById('profilePhoto').src =
+    data.basicInfo?.profilePhoto ||
+    'https://tamilgeo.wordpress.com/wp-content/uploads/2025/08/images4526844530498709058.png';
+  document.getElementById('designation').textContent =
+    data.employmentDetails?.designation || 'Not Available';
 
-  // Replace all spans with editable fields if editing
+  // Convert to editable if needed
   if (isEditing) {
     makeEditable();
   }
@@ -37,14 +37,15 @@ function renderProfile(data) {
 
 function makeEditable() {
   document.querySelectorAll('.detail span').forEach(span => {
-    const currentValue = span.textContent;
+    const value = span.textContent === 'Not Available' ? '' : span.textContent;
     const input = document.createElement('input');
-    input.value = currentValue !== '—' ? currentValue : '';
+    input.type = 'text';
+    input.value = value;
     span.replaceWith(input);
   });
 }
 
-// Edit Button
+// Edit button
 document.getElementById('editBtn').addEventListener('click', () => {
   isEditing = true;
   renderProfile(profileData);
@@ -52,27 +53,28 @@ document.getElementById('editBtn').addEventListener('click', () => {
   document.getElementById('saveBtn').style.display = 'inline-block';
 });
 
-// Save Button
-document.getElementById('saveBtn').addEventListener('click', () => {
+// Save button
+document.getElementById('saveBtn').addEventListener('click', async () => {
   const inputs = document.querySelectorAll('.detail input');
   let index = 0;
 
-  // Flatten & Update profileData
-  Object.keys(profileData).forEach(section => {
-    Object.keys(profileData[section]).forEach(field => {
-      profileData[section][field] = inputs[index].value;
-      index++;
-    });
-  });
+  // Ensure structure exists
+  profileData.basicInfo = profileData.basicInfo || {};
+  profileData.employmentDetails = profileData.employmentDetails || {};
 
-  // Save to Firebase
-  update(ref(db, `users/${currentUid}`), profileData).then(() => {
+  // Update basicInfo
+  profileData.basicInfo.fullName = inputs[index++].value || 'Not Available';
+  profileData.basicInfo.profilePhoto = inputs[index++].value || '';
+  profileData.employmentDetails.designation = inputs[index++].value || 'Not Available';
+
+  try {
+    await update(ref(db, `users/${currentUid}`), profileData);
     isEditing = false;
     document.getElementById('editBtn').style.display = 'inline-block';
     document.getElementById('saveBtn').style.display = 'none';
     renderProfile(profileData);
-    alert('Profile updated successfully!');
-  }).catch(err => {
-    alert('Error updating profile: ' + err.message);
-  });
+    alert('✅ Profile updated successfully!');
+  } catch (err) {
+    alert('❌ Error updating profile: ' + err.message);
+  }
 });
