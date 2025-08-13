@@ -5,7 +5,7 @@ import { ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-dat
 const signupForm = document.getElementById("signupForm");
 const signupBtn = document.getElementById("signupBtn");
 
-// Create overlay element
+// Overlay setup
 const overlay = document.createElement("div");
 overlay.id = "loadingOverlay";
 overlay.innerHTML = `
@@ -15,31 +15,27 @@ overlay.innerHTML = `
   </div>
 `;
 document.body.appendChild(overlay);
-overlay.style.display = "none"; // Hidden initially
+overlay.style.display = "none";
 
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const employeeId = document.getElementById("employeeId").value.trim(); // ✅ Employee ID
+  const employeeId = document.getElementById("employeeId").value.trim();
   const name = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value.trim();
 
   signupBtn.disabled = true;
-  signupBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Creating Account...`;
-
-  overlay.style.display = "flex"; // Show overlay
-  overlay.style.opacity = "1";
+  overlay.style.display = "flex";
 
   try {
-    // Create Firebase Auth account
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Store in Realtime Database under employeeId
+    // Store main user record
     await set(ref(db, "users/" + employeeId), {
-      authUid: user.uid,          // ✅ Matches your rules
-      employeeId: employeeId,     // ✅ For easy reference
+      authUid: user.uid,
+      employeeId: employeeId,
       name: name || "Not Available",
       email: email,
       designation: "Employee",
@@ -48,13 +44,16 @@ signupForm.addEventListener("submit", async (e) => {
       createdAt: new Date().toISOString()
     });
 
-    // Success feedback
+    // Store auth index for fast lookups
+    await set(ref(db, "authIndex/" + user.uid), {
+      employeeId: employeeId
+    });
+
     overlay.querySelector(".overlay-content").innerHTML = `
       <i class="fa fa-check-circle" style="color: #4CAF50; font-size: 2rem;"></i>
       <p>Signup Successful</p>
     `;
 
-    // Fade out and redirect
     setTimeout(() => {
       overlay.style.opacity = "0";
       setTimeout(() => {
@@ -67,7 +66,6 @@ signupForm.addEventListener("submit", async (e) => {
     showNotification(error.message, "error");
   } finally {
     signupBtn.disabled = false;
-    signupBtn.innerHTML = "Sign Up";
   }
 });
 
