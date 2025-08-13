@@ -7,16 +7,14 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">☰</button>
-  <div class="sidebar">
-    <h2>Avanta</h2>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="punch.html">Punch In/Out</a>
-    <a href="reports.html">Reports</a>
-    <a href="profile.html">Profile</a>
-    <a href="settings.html">Settings</a>
-    <a href="#" onclick="logout()">Logout</a>
-  </div>
+ 
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script type="module">
+  import { loadHeader } from './js/header.js';
+  loadHeader('settings'); // This will set title "Dashboard" with home icon
+</script>
 
   <div class="main-content">
     <h2>Settings</h2>
