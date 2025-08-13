@@ -1,16 +1,9 @@
 import { auth, db } from "./firebase-config.js";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { ref, get, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const loginForm = document.getElementById("loginForm");
 const loginBtn = document.getElementById("loginBtn");
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    await ensureUserRecord(user);
-    window.location.href = "dashboard.html";
-  }
-});
 
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -24,10 +17,14 @@ loginForm.addEventListener("submit", async (e) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     await ensureUserRecord(userCredential.user);
-    window.location.href = "dashboard.html";
+
+    showNotification("Login successful! Redirecting...", "success");
+
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 1000);
   } catch (error) {
     showNotification("Login failed: " + error.message, "error");
-  } finally {
     loginBtn.disabled = false;
     loginBtn.innerHTML = "Login";
   }
@@ -47,6 +44,7 @@ async function ensureUserRecord(user) {
         designation: "Not Available"
       },
       email: user.email || "",
+      sickBalance: 12, // default sick leaves
       createdAt: new Date().toISOString()
     });
   }
